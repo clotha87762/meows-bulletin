@@ -1,0 +1,14 @@
+.newsEntry {
+    border: 'solid 2px';
+    border-color: #da3c3c;
+    transition: 'height 2s';
+    height: auto
+}
+
+
+.newsBoard {
+    max-height: 30%;
+    max-width:  50%;
+    border: 'solid 5px';
+    border-radius: 10px;
+}
