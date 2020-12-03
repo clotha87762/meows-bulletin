@@ -1,31 +1,38 @@
 import logo from './logo.svg';
 import './App.css';
-import { Route, Link, Switch, IndexRouter } from 'react-router'
+import { Route, Link, Switch } from 'react-router-dom'
+import SideComponent from './components/sideComponent'
+import MainComponent from './components/mainComponent'
+import { connect } from 'react-redux'
+import webAPI from './webapi'
+import { BrowserRouter } from 'react-router-dom';
 
 
-
-function App({ isAuthed }) {
+function App({ isAuthed, dispatch }) {
 
   return (
 
-    <div className="App" style={{width: '100%' , height: '100%'}}>
-      <SidePanel isAuthed={isAuthed} style={{display:'inline-block'}}/>
-      {
-        !isAuthed ?
-          <Switch style={{display:'inline-block'}}>
-            <IndexRouter component={mainComponent} />
-            <Route path='/' component={mainComponent} />
-            <Route path='/login' component={mainComponent} />
-          </Switch>
-          :
-          <Switch style={{display:'inline-block'}}>
-            <IndexRouter component={mainComponent} />
-            <Route path='/' component={mainComponent} />
-            <Route path='/bulletin' component={mainComponent} />
-            <Route path='/explore' component={mainComponent} />
-          </Switch>
-      }
-    </div>
+    <BrowserRouter>
+
+      <div className="App" style={{ backgroundImage: `url('./assets/bg.jpg')` }} >
+        <div style={{minHeight:'100vh'}}>
+          <SideComponent isAuthed={isAuthed} logout={() => webAPI.logout(dispatch)} />
+          {
+            !isAuthed ?
+              <Switch >
+                <Route path='/' component={MainComponent} />
+                <Route path='/login' component={MainComponent} />
+              </Switch>
+              :
+              <Switch >
+                <Route path='/' component={MainComponent} />
+                <Route path='/bulletin' component={MainComponent} />
+                <Route path='/explore' component={MainComponent} />
+              </Switch>
+          }
+        </div>
+      </div>
+    </BrowserRouter>
 
   );
 
@@ -33,8 +40,12 @@ function App({ isAuthed }) {
 
 
 export default connect(
-  (state) => {
-    isAuthed : state.isAuthed
+  (state) => ({
+    isAuthed: state.isAuthed
   },
+    (dispatch) => ({
+      dispatch: dispatch
+    })
+  ),
 )
-(App);
+  (App);

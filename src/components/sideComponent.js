@@ -1,8 +1,8 @@
 import React from 'react'
-import { NavLink } from 'react-router'
+import { NavLink } from 'react-router-dom'
 
 
-const sideComponent = ({ isAuthed }) => {
+const sideComponent = ({ isAuthed , logout}) => {
 
     if (isAuthed) {
         return (

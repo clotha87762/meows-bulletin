@@ -1,6 +1,11 @@
+
+
 .App {
   text-align: center;
+  background-repeat: repeat-x repeat-y;
+  font-family: "Lucida Console";
 }
+
 
 .App-logo {
   height: 40vmin;
