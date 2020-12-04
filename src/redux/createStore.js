@@ -8,7 +8,7 @@ import Main from './mainReducers'
 const ConfigureStore = () => {
     const store = createStore(
         combineReducers({
-            mainReducer : Main
+            main : Main
         })
         , applyMiddleware(thunk, logger)
     );

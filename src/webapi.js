@@ -24,17 +24,19 @@ export default{
     },
     
     getNews: (dispatch) => {
-
         let news = [
             {
+                date: new Date(),
                 title: 'im so horny',
                 content: 'fuck me hard'
             },
             {
+                date: new Date(),
                 title: 'Yoooooooo',
-                content: 'front end sucks'
+                content: 'front end sucksddddddddddddddddddddddddd\n ssssssssssssss\n eeeeeeeeeee'
             },
             {
+                date: new Date(),
                 title: '$$$$$$$',
                 content: 'what the fuckkkk'
             }

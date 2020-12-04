@@ -1,13 +1,15 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
+import './css/sideComponent.css'
 
 
-const sideComponent = ({ isAuthed , logout}) => {
+const sideComponent = ({ isAuthed, logout }) => {
 
     if (isAuthed) {
         return (
             <div className='sidePanel'>
                 isAuthed?
+
                 <NavLink to='/' className='sideBlock' activeClassName='activeSide'>
                     HOME
                 </NavLink>
@@ -29,12 +31,17 @@ const sideComponent = ({ isAuthed , logout}) => {
     else {
         return (
             <div className='sidePanel'>
-                <NavLink to='/' className='sideBlock' activeClassName='activeSide'>
-                    HOME
-                </NavLink>
-                <NavLink to='/login' className='sideBlock' activeClassName='activeSide'>
-                    LOGIN
-                </NavLink>
+                <div className='sideBlock'>
+                    <NavLink to='/' className='navlink' activeClassName='activeSide'>
+                        HOME
+                    </NavLink>
+                </div>
+                <div style={{height:'2px'}}/>
+                <div className='sideBlock'>
+                    <NavLink to='/login'  className='navlink' activeClassName='activeSide'>
+                        LOGIN
+                    </NavLink>
+                </div>
             </div>
         )
     }
