@@ -2,6 +2,7 @@ import axios from 'axios'
 import {browserHistory} from 'react-router'
 import Immutable from 'immutable'
 import {set_news_ready , set_news} from './redux/mainActions'
+import { on_login , on_sign_up , set_login_error_msg, set_sign_up_error_msg } from './redux/loginAction'
 
 
 export default{
@@ -47,7 +48,16 @@ export default{
         setTimeout( ()=> { dispatch( set_news_ready(true))} , 3100 )
     },
 
-    login: (dispatch, account, password) => {},
+    login: (dispatch, account, password) => {
+        dispatch(on_login())
+        setTimeout( ()=> {dispatch( set_login_error_msg('fuck login'))} , 3000 )
+    },
     logout: dispatch => {},
+
+    signup: (dispatch, account ,password) =>{
+        dispatch(on_sign_up())
+        setTimeout( ()=> {dispatch( set_sign_up_error_msg('fuck signup'))} , 3000 )
+
+    }
 
 }

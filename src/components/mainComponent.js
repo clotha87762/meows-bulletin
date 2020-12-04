@@ -52,11 +52,12 @@ class MainComponent extends Component {
         return (
             <div key={index} onClick={() => this.props.setOpenedIndex(index)}>
                 <div style={{ lineHeight: '40px', minHeight: '40px', boxShadow: 'inset 0px 0px 5px ', border: 'solid 0px', borderColor: `rgba(200,120,120,0.7)`, background: `rgba(240,130,80,0.7)`, fontSize: '20px' }}>
-
-                    <span style={{}}><b>{item.title}</b></span>
-                    <br />
-                    <div className='newsEntry' style={{ transition:'max-height 0.6s'  , maxHeight: isOpen ? '100px' : '0px'  ,fontSize: '15px' }}>
-                        {isOpen? item.content: null}
+                    <div className='entryTitle'>
+                        <span ><b>{item.title}</b></span>
+                        <br />
+                        <div className='newsEntry' style={{ transition: 'max-height 0.6s', maxHeight: isOpen ? '100px' : '0px', fontSize: '15px' }}>
+                            {isOpen ? item.content : null}
+                        </div>
                     </div>
 
                 </div>
@@ -87,7 +88,7 @@ class MainComponent extends Component {
         else {
             return (
                 <div style={{ lineHeight: '90px', height: '90px', boxShadow: 'inset 0px 0px 5px ', border: 'solid 0px', borderColor: `rgba(200,120,120,0.7)`, background: `rgba(240,130,80,0.7)`, fontSize: '20px' }}>
-                    <span style={{marginTop:'10px'}} className="fa fa-spinner fa-pulse fa-2x fa-fw text-warning"></span>
+                    <span style={{ marginTop: '10px' }} className="fa fa-spinner fa-pulse fa-2x fa-fw text-warning"></span>
                     <b> News Now Loading... </b>
                 </div>
             )
@@ -130,6 +131,6 @@ class MainComponent extends Component {
 
 }
 
-export default connect(
+export default withRouter( connect(
     mapStateToProps, mapDispatchToProps
-)(MainComponent)
+)(MainComponent))
