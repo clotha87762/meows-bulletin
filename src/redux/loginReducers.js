@@ -19,7 +19,7 @@ const loginReducer = (
             return {...state, signupErrorMsg: null , onSignup: true}
 
         case ActionTypes.SET_SIGN_UP_FORM:
-            return {...state , signUpForm : action.payload }
+            return {...state , signUpForm : action.payload , signupErrorMsg: null}
         case ActionTypes.SET_LOGIN_ERROR_MSG:
             return {...state , loginErrorMsg: action.payload , onLogin:false }
         case ActionTypes.SET_SIGN_UP_ERROR_MSG:
