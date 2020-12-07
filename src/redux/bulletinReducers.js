@@ -7,7 +7,8 @@ const bulletinReducer = (
         searchUsers: [],
         showCreatePost: false,
         showSearchUsers: false,
-        postsReady : false
+        postsReady : false,
+        followErrorMsg: null
     },
     action
 ) => {
@@ -23,6 +24,8 @@ const bulletinReducer = (
             return {...state, showCreatePost: action.payload}
         case ActionTypes.SHOW_SEARCH_USER:
             return {...state, showSearchUsers: action.payload}
+        case ActionTypes.SET_FOLLOW_ERROR_MSG:
+            return {...state, followErrorMsg: action.payload }
         default:
             return state
     }

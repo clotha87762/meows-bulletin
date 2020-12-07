@@ -55,7 +55,7 @@ class MainComponent extends Component {
                     <div className='entryTitle'>
                         <span ><b>{item.title}</b></span>
                         <br />
-                        <div className='newsEntry' style={{ transition: 'max-height 0.6s', maxHeight: isOpen ? '100px' : '0px', fontSize: '15px' }}>
+                        <div className='newsEntry' style={{ transition: 'max-height 0.6s ease-out', maxHeight: isOpen ? '100px' : '0px', fontSize: '15px' }}>
                             {isOpen ? item.content : null}
                         </div>
                     </div>

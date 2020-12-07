@@ -2,13 +2,17 @@ import axios from 'axios'
 import { browserHistory } from 'react-router'
 import Immutable from 'immutable'
 import { set_news_ready, set_news } from './redux/mainActions'
-import { on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg } from './redux/loginAction'
+import {  on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg } from './redux/loginAction'
+import { set_posts , set_search_user , set_posts_ready , show_create_post , show_search_user} from './redux/bulletinActions'
+import {set_login, set_profile} from './redux/appActions'
+import { createBrowserHistory } from 'history'
+
 
 
 export default {
 
     checkAuth: (dispatch, token) => {
-
+        
     },
 
     getCookie: keyName => {
@@ -81,7 +85,9 @@ export default {
             }
         ]
 
-        return posts
+        dispatch( set_posts_ready(false) )
+        setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
+        setTimeout( () =>{ dispatch( set_posts_ready(true))} , 2100)
     },
 
     fetchUserPost: (dispatch, userAccount) => {
@@ -100,7 +106,9 @@ export default {
                 content: 'ddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
             }]
-        return posts
+            dispatch( set_posts_ready(false) )
+            setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
+            setTimeout( () =>{ dispatch( set_posts_ready(true))} , 2100)
     },
 
     fetchRandomPosts: (dispatch) => {
@@ -120,7 +128,9 @@ export default {
                 image: null
             }]
 
-        return posts
+            dispatch( set_posts_ready(false) )
+            setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
+            setTimeout( () =>{ dispatch( set_posts_ready(true))} , 2100)
     },
 
     fetchUsers: (dispatch, userPrefix) => {
@@ -137,21 +147,41 @@ export default {
             },
         ]
 
-        return users
+        dispatch( show_search_user(false) )
+        setTimeout( ()=>{dispatch(show_search_user(true))} , 2100)
+        setTimeout( ()=>{dispatch(set_search_user(users)) } , 2000)
+
     },
 
     followUser: (dispatch, followee) => { // false if user not exist or already folloed
-        return true
+        
     },
 
 
 
     login: (dispatch, account, password) => {
+
+        let profile = {
+            user: "aaaa123",
+            alias: "Alan",
+            profileImage: null
+        }
+
+
         dispatch(on_login())
-        setTimeout(() => { dispatch(set_login_error_msg('fuck login')) }, 3000)
+        //setTimeout(() => { dispatch(set_login_error_msg('fuck login')) }, 3000)
+        setTimeout( ()=>{dispatch(set_profile(profile) ) }  , 1900)
+        setTimeout(() => { dispatch(set_login(true) ) }, 2000)
+
     },
 
-    logout: dispatch => { },
+    logout: (dispatch) => {
+
+        console.log('log out')
+        dispatch( set_profile(null) )
+        dispatch( set_login(false) )
+        //createBrowserHistory().push('/')    
+    },
 
     signup: (dispatch, account, password) => {
         dispatch(on_sign_up())

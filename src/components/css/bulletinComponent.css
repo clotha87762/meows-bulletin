@@ -1,0 +1,90 @@
+
+.bulletinHeader{
+    background: rgba(223, 136, 66, 0.9);
+    max-width: 85vw;
+    max-height: 10vh;
+    padding: 1vh;
+    border: solid 2px rgba(56, 6, 6, 0.795);
+    border-radius: 10px;
+    align-items: center;
+}
+
+@media screen and (max-width: 800px) {
+    .bulletinHeader {
+        max-width: 80vw;
+    }
+}
+
+
+.btn{
+    background: rgba(124, 52, 23, 0.582);
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 18px;
+    text-align: center;
+    text-decoration: none;
+    display:inline-block;
+    outline:none;
+    position:relative;
+    top:0;
+    text-shadow:0 1px 1px rgba(0, 0, 0, 0.5);
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+     transition: all 0.2s ease-in-out 0s;
+}
+
+.userImg{
+    height: 8vmin;
+    width: 8min;
+    border-radius: 50%;
+}
+
+
+.randomPostButton{
+    background-color:  rgb(247, 192, 121);
+    border: solid 1px rgba(124, 52, 23, 0.582);
+    max-width: 15%;
+    height:100%;
+}
+
+@media screen and (max-width: 800px) {
+    .randomPostButton .textself{
+      font-size: 0px;
+    }
+}
+
+
+.backToMyBulletinButton {
+    background-color: rgb(247, 192, 121);
+    border: solid 1px rgba(124, 52, 23, 0.582);
+    max-width: 15%;
+}
+
+@media screen and (max-width: 800px) {
+    .backToMyBulletinButton .textself{
+      font-size: 0px;
+    }
+}
+
+
+.searchBar{
+    background-color: rgb(255, 223, 211);
+    border-radius: 10px;
+    height: 2.0rem;
+    flex-basis: 25vw;
+    max-width: 30%;
+    text-shadow:0 0px 0px;
+}
+
+.searchBar::placeholder{
+    color: rgba(0, 0, 0, 0.15)
+}
+
+.postBackground{
+    background-color: rgb(231, 99, 59)
+}

@@ -7,7 +7,8 @@ const loginReducer = (
         loginErrorMsg: null,
         signupErrorMsg: null,
         onLogin: false,
-        onSignup: false
+        onSignup: false,
+        
     },
     action
 ) => {

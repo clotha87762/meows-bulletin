@@ -1,19 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
-import { Route, Link, Switch, } from 'react-router-dom'
+import { Route, Link, Switch, Redirect } from 'react-router-dom'
 import SideComponent from './components/sideComponent'
 import MainComponent from './components/mainComponent'
 import LoginComponent from './components/loginComponent'
+import BulletinComponent from './components/bulletinComponent'
 import { connect } from 'react-redux'
 import webAPI from './webapi'
 import { BrowserRouter, withRouter } from 'react-router-dom';
 import { Col, Row } from 'reactstrap'
 
 
-function App({ isAuthed, dispatch }) {
+function App( { isAuthed , profile , logout } ) {
 
-
-  isAuthed = false
+  isAuthed = true
 
   return (
 
@@ -21,22 +21,24 @@ function App({ isAuthed, dispatch }) {
 
       <div className="App" style={{ position: 'relative', backgroundImage: `url('./assets/bg.jpg')` }} >
         <div style={{ minHeight: '100vh' }}>
-
-
-          <SideComponent isAuthed={isAuthed} logout={() => webAPI.logout(dispatch)} />
+          
+          <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
+          
           <Col sm={{ size: 10, offset: 0 }}>
             {
-              isAuthed ?
+              isAuthed?
                 <Switch>
-                  <Route path='/' component={MainComponent} />
-                  <Route path='/bulletin' component={MainComponent} />
+                  <Route exact path='/' component={MainComponent} />
+                  <Route path='/bulletin' component={BulletinComponent} />
                   <Route path='/explore' component={MainComponent} />
                   <Route path='/profile' component={MainComponent} />
+                  <Redirect to='/'/>
                 </Switch>
                 :
                 <Switch>
                   <Route exact path='/' component={MainComponent} />
                   <Route path='/login' component={LoginComponent} />
+                  <Redirect to='/'/>
                 </Switch>
             }
           </Col>
@@ -51,11 +53,13 @@ function App({ isAuthed, dispatch }) {
 
 export default connect(
   (state) => ({
-    isAuthed: state.isAuthed
-  },
-    (dispatch) => ({
-      dispatch: dispatch
-    })
-  ),
+    isAuthed: state.app.isLogined,
+    profile: state.app.profile
+  }),
+  (dispatch) => (
+    {
+      logout: () => { webAPI.logout(dispatch) }
+    }
+  )
 )
   (App);

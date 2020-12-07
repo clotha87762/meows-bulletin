@@ -1,5 +1,5 @@
 // @ts-check 
-import {SET_SIGN_UP_FORM , SET_LOGIN_ERROR_MSG , ON_LOGIN , ON_SIGN_UP , SET_SIGN_UP_ERROR_MSG} from './ActionTypes'
+import { SET_SIGN_UP_FORM , SET_LOGIN_ERROR_MSG , ON_LOGIN , ON_SIGN_UP , SET_SIGN_UP_ERROR_MSG} from './ActionTypes'
 import {createActions} from 'redux-actions'
 
 
@@ -34,3 +34,5 @@ export const set_login_error_msg = (error) =>(
        type: ON_SIGN_UP,
     }
 )
+
+ 
