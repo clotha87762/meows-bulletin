@@ -24,7 +24,7 @@ function App( { isAuthed , profile , logout } ) {
           
           <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
           
-          <Col sm={{ size: 10, offset: 0 }}>
+          <Col xs={{ size: 10, offset: 0 }}>
             {
               isAuthed?
                 <Switch>

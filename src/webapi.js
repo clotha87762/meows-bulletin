@@ -56,6 +56,7 @@ export default {
 
         let posts = [
             {
+                _id:'666',
                 user: "aaaa123",
                 alias: "Alan",
                 date: new Date('2020-10-10'),
@@ -63,13 +64,15 @@ export default {
                 image: null
             },
             {
+                _id:"444",
                 user: "aaaa123",
                 alias: "Alan",
                 date: new Date('2020-10-12'),
-                content: 'ddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
+                content: 'ddddddddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
             },
             {
+                _id:'333',
                 user: "bbbb456",
                 alias: "Bob",
                 date: new Date('2020-10-13'),
@@ -77,6 +80,7 @@ export default {
                 image: null
             },
             {
+                _id: "123",
                 user: "bbbb456",
                 alias: "Bob",
                 date: new Date('2020-10-11'),
