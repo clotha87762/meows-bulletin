@@ -13,8 +13,12 @@ export const ON_SIGN_UP = 'ON_SIGN_UP'
 export const SET_SIGN_UP_ERROR_MSG = 'SET_SIGN_UP_ERROR_MSG'
 
 export const SET_POSTS = 'SET_POSTS'
+export const SET_RANDOM_POSTS = 'SET_RANDOM_POSTS'
 export const SET_POSTS_READY = 'POSTS_READY'
 export const SHOW_CREATE_POST = 'SHOW_CREATE_POST'
 export const SET_SEARCH_USER = 'SET_SEARCH_USER'
 export const SHOW_SEARCH_USER = 'SHOW_SEARCH_USER'
 export const SET_FOLLOW_ERROR_MSG = 'SET_FOLLOW_ERROR_MSG'
+
+export const EDIT_POST = 'EDIT_POST'
+export const DELETE_POST = 'DELETE_POST'

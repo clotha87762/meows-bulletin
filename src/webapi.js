@@ -3,7 +3,7 @@ import { browserHistory } from 'react-router'
 import Immutable from 'immutable'
 import { set_news_ready, set_news } from './redux/mainActions'
 import {  on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg } from './redux/loginAction'
-import { set_posts , set_search_user , set_posts_ready , show_create_post , show_search_user} from './redux/bulletinActions'
+import { delete_post, edit_post, set_random_posts, set_posts , set_search_user , set_posts_ready , show_create_post , show_search_user} from './redux/bulletinActions'
 import {set_login, set_profile} from './redux/appActions'
 import { createBrowserHistory } from 'history'
 
@@ -86,6 +86,54 @@ export default {
                 date: new Date('2020-10-11'),
                 content: 'kkkkkkkkkkkkkkk\ndddddddddddddddddddd\naaaaaaaaasss',
                 image: null
+            },
+            {
+                _id: "12355",
+                user: "cccgggg",
+                alias: "Cat",
+                date: new Date('2020-11-11'),
+                content: 'cccccccccccccccccc\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
+            },
+            {
+                _id: "12366",
+                user: "cccgggg",
+                alias: "Cat",
+                date: new Date('2020-12-11'),
+                content: 'qqqqqqqqqqqqqqqqqwwww\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
+            },
+            {
+                _id: "ddddd",
+                user: "dddggg",
+                alias: "Dog",
+                date: new Date('2020-12-11'),
+                content: 'doggggggggggg\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
+            },
+            {
+                _id: "dddd22d",
+                user: "dddggg",
+                alias: "Dog",
+                date: new Date('2020-12-11'),
+                content: 'asfdsgfreherreg\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
+            },
+            {
+                _id: "1233366",
+                user: "eeegggg",
+                alias: "Eat",
+                date: new Date('2020-12-11'),
+                content: 'qqqqqqqqqqqqqqqqqwwww\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
+            },
+            {
+                _id: "12361236",
+                user: "eeegggg",
+                alias: "Eat",
+                date: new Date('2020-12-11'),
+                content: 'EEEEEEEEEEEEEEEEEEEEEEE\ndddddddddddddddddddd\naaaaaaaaasss',
+                image: null
             }
         ]
 
@@ -97,19 +145,22 @@ export default {
     fetchUserPost: (dispatch, userAccount) => {
         let posts = [
             {
-                user: "aaaa123",
-                alias: "Alan",
+                _id:'666',
+                user: "ddddd123",
+                alias: "YYYYYY",
                 date: new Date('2020-10-10'),
-                content: 'wowwwwwww\n im so boring \n fuck react',
+                content: 'iiiiiiiiiiiiiiiiiiiiiiiiiiiiii\n im so boring \n fuck react',
                 image: null
             },
             {
-                user: "aaaa123",
-                alias: "Alan",
+                _id:"444",
+                user: "eeeeee123",
+                alias: "QQQQQQ",
                 date: new Date('2020-10-12'),
-                content: 'ddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
+                content: 'dzzzzzzzzzzzzzzzzzzzzzz\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
-            }]
+            },]
+
             dispatch( set_posts_ready(false) )
             setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
             setTimeout( () =>{ dispatch( set_posts_ready(true))} , 2100)
@@ -119,22 +170,28 @@ export default {
         let posts = [
             {
                 user: "aaaa123",
-                alias: "Alan",
+                alias: "dlan",
                 date: new Date('2020-10-10'),
                 content: 'wowwwwwww\n im so boring \n fuck react',
                 image: null
             },
             {
                 user: "aaaa123",
-                alias: "Alan",
+                alias: "blan",
                 date: new Date('2020-10-12'),
                 content: 'ddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
             }]
 
             dispatch( set_posts_ready(false) )
-            setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
+            setTimeout( () =>{ dispatch( set_random_posts(posts))} , 2000)
             setTimeout( () =>{ dispatch( set_posts_ready(true))} , 2100)
+    },
+
+    fetchNewPosts: (dispatch) =>{
+        //
+        //  fetch new posts in a every x seconds interval
+        //
     },
 
     fetchUsers: (dispatch, userPrefix) => {
@@ -161,20 +218,28 @@ export default {
         
     },
 
+    editPost: (dispatch , postId, postContent , postImg) =>{
 
+    },
+
+    deletePost: (dispatch, postId ) =>{
+
+        setTimeout( ()=>{dispatch( delete_post(postId) )}, 1200)
+
+    },
 
     login: (dispatch, account, password) => {
 
         let profile = {
             user: "aaaa123",
-            alias: "Alan",
+            alias: "Alann",
             profileImage: null
         }
 
 
         dispatch(on_login())
         //setTimeout(() => { dispatch(set_login_error_msg('fuck login')) }, 3000)
-        setTimeout( ()=>{dispatch(set_profile(profile) ) }  , 1900)
+        dispatch(set_profile(profile))
         setTimeout(() => { dispatch(set_login(true) ) }, 2000)
 
     },

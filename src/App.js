@@ -19,7 +19,7 @@ function App( { isAuthed , profile , logout } ) {
 
     <BrowserRouter>
 
-      <div className="App" style={{ position: 'relative', backgroundImage: `url('./assets/bg.jpg')` }} >
+      <div className="App" style={{ position: 'relative', backgroundImage: `url('/assets/bg.jpg')` }} >
         <div style={{ minHeight: '100vh' }}>
           
           <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
