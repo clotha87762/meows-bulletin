@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component, createElement } from 'react'
 import { findRenderedDOMComponentWithClass } from 'react-dom/test-utils'
 import { Container, Col, Row, CardImg, Card, CardBody, CardText, Button, Input } from 'reactstrap'
 import { action } from 'redux'
@@ -10,11 +10,12 @@ import { set_posts, set_posts_ready, show_create_post, set_search_user, show_sea
 import webAPI from '../webapi'
 import './css/bulletinComponent.css'
 import '../common/DateFormat'
+import Immutable from 'immutable'
 
 
 const mapStateToProps = (state) => {
     return {
-        posts: state.bulletin.posts,
+        posts: state.bulletin.posts.toJS(),
         randomPosts: state.bulletin.randomPosts,
         searchUsers: state.bulletin.searchUsers,
         showCreatePost: state.bulletin.showCreatePost, //好像沒用?
@@ -29,10 +30,10 @@ const mapDispatchToProps = (dispatch) => {
         fetchPost: () => { webAPI.fetchPosts(dispatch) },
         fetchUserPost: (userAccount) => { webAPI.fetchUserPost(dispatch, userAccount) },
         fetchRandomPost: () => { webAPI.fetchRandomPosts(dispatch) },
-        fetchUsers: (userPrefix) => { webAPI.fetchUsers(dispatch) },
+        fetchUsers: (userPrefix) => { webAPI.fetchUsers(dispatch, userPrefix) },
         login: () => { webAPI.login(dispatch, '123', '123123') },
-        deletePost: ( postId )=>{ webAPI.deletePost(dispatch , postId)},
-        editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch,postId,postContent,postImg)}
+        deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
+        editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) }
     }
 }
 
@@ -93,17 +94,59 @@ class BulletinComponent extends Component {
         console.log(post)
         let postCardRef = React.createRef()
 
-        let deletePost = () =>{
+
+        let deletePost = () => {
             //console.log('delete'+ post._id)
-            postCardRef.current.style.opacity = 0
+            //postCardRef.current.style.opacity = 0
+            postCardRef.current.classList.add('disappearing')
             this.props.deletePost(post._id)
         }
 
-        let editPost = () =>{
+        let editPost = () => {
 
+            let contentEdit = postCardRef.current.querySelector('.contentEdit')
+            let submitEdit = postCardRef.current.querySelector('.submitEditBtn')
+            let editPost = postCardRef.current.querySelector('.editPostBtn')
+            let postCardContent = postCardRef.current.querySelector('.postCardContent')
+
+            contentEdit.classList.remove('invisible')
+            postCardContent.classList.add('invisible')
+
+            submitEdit.classList.remove('invisible')
+            submitEdit.classList.add('order-1')
+            editPost.classList.add('order-0')
+
+            editPost.classList.add('invisible')
+
+
+            contentEdit.value = post.content
         }
 
-        
+        let submitEdit = () => {
+
+            let contentEdit = postCardRef.current.querySelector('.contentEdit')
+            let submitEdit = postCardRef.current.querySelector('.submitEditBtn')
+            let editPost = postCardRef.current.querySelector('.editPostBtn')
+            let postCardContent = postCardRef.current.querySelector('.postCardContent')
+
+
+            contentEdit.classList.add('invisible')
+            postCardContent.classList.remove('invisible')
+
+
+            editPost.classList.remove('invisible')
+            editPost.classList.remove('order-0')
+
+            submitEdit.classList.remove('order-1')
+            submitEdit.classList.add('invisible')
+
+            // currently, not able to edit image
+
+            this.props.editPost(post._id, contentEdit.value, post.image)
+
+            //this.setState( this.state )
+
+        }
 
         return (
             <div ref={postCardRef} key={post._id} >
@@ -126,18 +169,25 @@ class BulletinComponent extends Component {
                     </div>
                     <hr className='separateLine' />
                     <div className='row'>
-                        <div className='col-10 offset-1'>
+                        <div className='postCardMain col-10 offset-1'>
 
                             <div className='postCardContent'>
-                                <p>
-                                    {post.content}
-                                </p>
+
+                                {post.content}
+
                             </div>
+
+                            <textarea className='invisible contentEdit' name='createPost' id='createPost'>
+
+                            </textarea>
+
                         </div>
+
                     </div>
                     <div className='row justify-content-end'>
-                        <Button className='functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
-                        <Button onClick={deletePost} className='functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
+                        <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
+                        <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
+                        <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
                     </div>
                 </div >
             </div>
@@ -190,7 +240,8 @@ class BulletinComponent extends Component {
                 <div className='postContainer'>
                     {posts}
                 </div>
-            </div>)
+            </div>
+        )
     }
 
 
@@ -272,6 +323,40 @@ class BulletinComponent extends Component {
     }
 
     renderHeader() {
+
+        let searchUserRef = React.createRef()
+
+        let fetchSearchResult = (prefix) => {
+
+            console.log('prefix')
+            console.log(prefix)
+            this.props.fetchUsers(prefix)
+            console.log('fetch userss')
+            console.log(this.props.searchUsers)
+
+        }
+
+        let searchOnFocus = (prefix) => {
+
+
+            console.log('prefix')
+            console.log(prefix)
+            this.props.fetchUsers(prefix)
+            console.log('fetch userss')
+            console.log(this.props.searchUsers)
+
+
+            let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
+            searchResultDiv.classList.remove('invisible')
+        }
+
+        let searchOnBlur = () => {
+            let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
+            searchResultDiv.classList.add('invisible')
+
+        }
+
+
         return (
             <div className='bulletinHeader' style={{ display: 'flex' }}>
 
@@ -294,7 +379,27 @@ class BulletinComponent extends Component {
                 </NavLink>
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
-                <input className='searchBar' type='text' placeholder='search other user by account'></input>
+                <div ref={searchUserRef} className='searchUser'>
+
+                    <div className='searchResult invisible'>
+                        {
+                            this.props.searchUsers.map(
+                                (item) => {
+                                    return (
+                                        <div className='searchEntry'>
+                                            <span><img src={''} className='searchUserImg' /></span>
+                                            { item.alias + '@' + item.user}
+                                        </div>
+                                    )
+                                }
+                            )
+                        }
+                    </div>
+
+                    <input onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBar' type='text' placeholder='search other user by account'>
+                    </input>
+
+                </div>
 
             </div>
         )

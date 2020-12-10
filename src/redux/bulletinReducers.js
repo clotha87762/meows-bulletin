@@ -1,10 +1,10 @@
 import * as ActionTypes from './ActionTypes';
-
+import Immutable from 'immutable'
 
 const bulletinReducer = (
     state = {
-        posts: [],
-        searchUsers: [],
+        posts: Immutable.List(),
+        searchUsers: Immutable.List(),
         showCreatePost: false,
         showSearchUsers: false,
         postsReady : false,
@@ -31,15 +31,12 @@ const bulletinReducer = (
             return {...state, followErrorMsg: action.payload }
         case ActionTypes.DELETE_POST:{
 
-            //console.log('before delete')
-           
-
-            let allPosts = Object.assign( [] , state.posts)
+            let allPosts = state.posts
             //console.log(allPosts)
 
             let post = allPosts.filter(
                 (item)=>{
-                    if(item._id === action.payload){
+                    if(item.get('_id') === action.payload){
                         return true
                     }
                     return false
@@ -48,7 +45,7 @@ const bulletinReducer = (
 
             post.forEach(
                 (item)=>{
-                    allPosts.splice( allPosts.indexOf(item) , 1 )
+                    allPosts = allPosts.delete( allPosts.indexOf(item))
                 }
             )
 
@@ -60,21 +57,37 @@ const bulletinReducer = (
         case ActionTypes.EDIT_POST:{
 
             let allPosts = state.posts
+
             let post = allPosts.filter(
                 (item)=>{
-                    if(item._id === action.payload){
+                    if(item.get('_id') === action.payload.id){
                         return true
                     }
                     return false
                 }
             )
+
             post.forEach(
+                
                 (item)=>{
-                    item.content = action.payload.content
-                    item.image = action.payload.image
+
+                    let targetPost = allPosts.get( allPosts.indexOf(item) ) 
+
+                    console.log(targetPost)
+                    
+                    let toMerge = {
+                        content: action.payload.content,
+                        image: action.payload.image
+                    }
+                    targetPost = targetPost.merge( Immutable.Map(toMerge) )
+
+                    allPosts = allPosts.set(allPosts.indexOf(item) , targetPost) 
                 }
             )
-            return {...state, posts: allPosts}
+
+            //setTimeout( ()=>{console.log(allPosts.get(0) )} , 1000)
+            //return {...state , posts: allPosts}
+            return {...state , posts: allPosts}
         }
         default:
             return state

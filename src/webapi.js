@@ -54,7 +54,8 @@ export default {
 
     fetchPosts: (dispatch) => {
 
-        let posts = [
+        let Map = Immutable.Map
+        let posts = Immutable.fromJS( [
             {
                 _id:'666',
                 user: "aaaa123",
@@ -135,7 +136,7 @@ export default {
                 content: 'EEEEEEEEEEEEEEEEEEEEEEE\ndddddddddddddddddddd\naaaaaaaaasss',
                 image: null
             }
-        ]
+        ])
 
         dispatch( set_posts_ready(false) )
         setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
@@ -143,7 +144,7 @@ export default {
     },
 
     fetchUserPost: (dispatch, userAccount) => {
-        let posts = [
+        let posts =  Immutable.List( [
             {
                 _id:'666',
                 user: "ddddd123",
@@ -159,7 +160,7 @@ export default {
                 date: new Date('2020-10-12'),
                 content: 'dzzzzzzzzzzzzzzzzzzzzzz\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
-            },]
+            },])
 
             dispatch( set_posts_ready(false) )
             setTimeout( () =>{ dispatch( set_posts(posts))} , 2000)
@@ -167,7 +168,10 @@ export default {
     },
 
     fetchRandomPosts: (dispatch) => {
-        let posts = [
+
+        
+        
+        let posts = Immutable.List( [
             {
                 user: "aaaa123",
                 alias: "dlan",
@@ -182,6 +186,7 @@ export default {
                 content: 'ddddddddddddddddddddddddd\ndddddddd\n\n\n\ndddddddddddd\naaaaaaaaasss',
                 image: null
             }]
+        )
 
             dispatch( set_posts_ready(false) )
             setTimeout( () =>{ dispatch( set_random_posts(posts))} , 2000)
@@ -195,22 +200,79 @@ export default {
     },
 
     fetchUsers: (dispatch, userPrefix) => {
-        let users = [
+        
+        let users = Immutable.fromJS( [
             {
                 user: "aaaa123",
                 alias: "Alan",
-                image: null
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "AAlan",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "Allan",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "AlanAAA",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "AAAlan",
+                image: '/assets/yoo.png'
             },
             {
                 user: "bbbb456",
                 alias: "Bob",
-                image: null
+                image: '/assets/yoo.png'
             },
+            {
+                user: "bbbb456",
+                alias: "BBob",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "Bobbb",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "Booooob",
+                image: '/assets/yoo.png'
+            },
+            {
+                user: "bbbb456",
+                alias: "BBBoBb",
+                image: '/assets/yoo.png'
+            },
+        
         ]
+        )
+
+        
+        let userJS = users.toJS()
+        userJS = userJS.filter(
+            (item) =>{
+                return item.alias.toLowerCase().startsWith(userPrefix.toLowerCase())
+            }
+        )
+        console.log('userJS')
+        console.log(userJS)
+
+        if(userPrefix.trim().replace(/[^A-Za-z']/g, "") === ''){
+          userJS = []   
+        }
 
         dispatch( show_search_user(false) )
-        setTimeout( ()=>{dispatch(show_search_user(true))} , 2100)
-        setTimeout( ()=>{dispatch(set_search_user(users)) } , 2000)
+        setTimeout( ()=>{dispatch(show_search_user(true))} , 1100)
+        setTimeout( ()=>{dispatch(set_search_user(userJS)) } , 1000)
 
     },
 
@@ -219,7 +281,12 @@ export default {
     },
 
     editPost: (dispatch , postId, postContent , postImg) =>{
-
+        let payload = {
+            id : postId,
+            content: postContent,
+            image: postImg
+        }
+        dispatch( edit_post(payload) )
     },
 
     deletePost: (dispatch, postId ) =>{
