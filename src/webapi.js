@@ -303,10 +303,10 @@ export default {
             profileImage: null
         }
 
-
+        dispatch(set_profile(profile))
         dispatch(on_login())
         //setTimeout(() => { dispatch(set_login_error_msg('fuck login')) }, 3000)
-        dispatch(set_profile(profile))
+        //dispatch(set_profile(profile))
         setTimeout(() => { dispatch(set_login(true) ) }, 2000)
 
     },

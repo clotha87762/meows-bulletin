@@ -24,7 +24,7 @@ const sideComponent = ({ isAuthed, userAlias, logout }) => {
                 </NavLink>
                 </div>
                 <div className='sideBlock'>
-                    <NavLink to='/profile' className='navlink' activeClassName='activeSide'>
+                    <NavLink to='/bulletin/profile' className='navlink' activeClassName='activeSide'>
                         <span className="fa fa-id-badge" /> &nbsp;PROFILE
                 </NavLink>
                 </div>

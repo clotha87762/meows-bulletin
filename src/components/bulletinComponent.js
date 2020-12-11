@@ -11,6 +11,7 @@ import webAPI from '../webapi'
 import './css/bulletinComponent.css'
 import '../common/DateFormat'
 import Immutable from 'immutable'
+import ProfileComponent from './profileComponent'
 
 
 const mapStateToProps = (state) => {
@@ -47,6 +48,7 @@ class BulletinComponent extends Component {
         this.renderPostsPage = this.renderPostsPage.bind(this)
         this.renderCreatePost = this.renderCreatePost.bind(this)
         this.renderHeader = this.renderHeader.bind(this)
+        this.renderProfile = this.renderProfile.bind(this)
 
         this.createPostTextareaRef = React.createRef()
         this.uploadImgRef = React.createRef()
@@ -63,6 +65,8 @@ class BulletinComponent extends Component {
         ///////////////////////////////
         // only for test
         this.props.login()
+
+        console.log('constructor')
 
     }
 
@@ -91,7 +95,7 @@ class BulletinComponent extends Component {
 
     renderPost(post) {
 
-        console.log(post)
+        //console.log(post)
         let postCardRef = React.createRef()
 
 
@@ -328,23 +332,13 @@ class BulletinComponent extends Component {
 
         let fetchSearchResult = (prefix) => {
 
-            console.log('prefix')
-            console.log(prefix)
             this.props.fetchUsers(prefix)
-            console.log('fetch userss')
-            console.log(this.props.searchUsers)
 
         }
 
         let searchOnFocus = (prefix) => {
 
-
-            console.log('prefix')
-            console.log(prefix)
             this.props.fetchUsers(prefix)
-            console.log('fetch userss')
-            console.log(this.props.searchUsers)
-
 
             let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
             searchResultDiv.classList.remove('invisible')
@@ -363,19 +357,19 @@ class BulletinComponent extends Component {
                 <span style={{ flexBasis: '1vw' }} />
 
                 <img className='userImg' src={this.props.profile ? "/assets/yoo.png" : "/assets/yoo.png"} />
-                <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', tectAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
+                <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
-                <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/create`}><button className='newPostButton btn' ><span className="fa fa-plus-square" /><span className='textself'>  &nbsp;New Post&nbsp;  </span></button></NavLink>
+                <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/create`}><button className='newPostButton btn' ><span className="fa fa-plus-square fa-fw" /><span className='textself'>  &nbsp;New Post&nbsp;  </span></button></NavLink>
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                 <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/`}>
-                    <button className='backToMyBulletinButton btn'><span className="fa fa-comments" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
+                    <button className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
                 </NavLink>
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                 <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/explore`}>
-                    <button className='randomPostButton btn'><span className="fa fa-globe" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
+                    <button className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
                 </NavLink>
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
@@ -387,7 +381,7 @@ class BulletinComponent extends Component {
                                 (item) => {
                                     return (
                                         <div className='searchEntry'>
-                                            <span><img src={''} className='searchUserImg' /></span>
+                                            <span><img src={item.image} className='searchUserImg' /></span>
                                             { item.alias + '@' + item.user}
                                         </div>
                                     )
@@ -405,13 +399,29 @@ class BulletinComponent extends Component {
         )
     }
 
+    renderProfile(){
+        let header = this.renderHeader()
+        return(
+            <>
+            {header}
+            { this.props.profile===null?
+                <div />
+                :
+                <ProfileComponent profile={this.props.profile} />
+            }
+            </>
+        )
+    }
+
     render() {
-        console.log(this.props.match)
+
+        console.log('renderrr')
         return (
             <div>
                 <Route exact path={`${this.props.match.path}/`} component={this.renderPostsPage} />
-                <Route exact path={`${this.props.match.path}/explore`} component={this.renderPostsPage} />
+                <Route path={`${this.props.match.path}/explore`} component={this.renderPostsPage} />
                 <Route path={`${this.props.match.path}/create`} component={this.renderCreatePost} />
+                <Route path={`${this.props.match.path}/profile`} component={this.renderProfile} />
             </div>
         )
     }

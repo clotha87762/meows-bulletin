@@ -1,0 +1,70 @@
+
+
+
+.profileCard{
+    background: rgba(230, 141, 90, 0.9);
+    height: 500px;
+    max-height: 50vh;
+    position:relative;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: inset 0px 0px 10px black;
+}
+
+
+
+.profileCard .profileCardImg{
+    height: 75%;
+    min-height: 100px;
+    width:auto;
+    border-radius: 50%;
+}
+
+.profileCard .textBlock{
+    height: 90%;
+    width: 95%;
+    margin: 0px 10px;
+    text-align: left;
+    overflow: hidden;
+    word-wrap: break-word;
+    
+}
+.profileCard .profileAlias{
+    top: 5%;
+    font-size: 2rem;
+    word-wrap: break-word;
+
+}
+
+.profileCard .profileDescription{
+    word-wrap: break-word;
+
+}
+
+.profileCard hr{
+    color: black;
+    background: black;
+    height: 2px;
+}
+
+.profileCard .editAlias{
+    background: rgba(68, 22, 6, 0.9);
+    position: absolute;
+    right: 5%;
+    top: 5%;
+}
+
+.profileCard .editDescription{
+    background: rgba(68, 22, 6, 0.9);
+    position: absolute;
+    top: 80%;
+    right: 5%;
+}
+
+.profileCard .editImg{
+    background: rgba(68, 22, 6, 0.9);
+    position: absolute;
+    right: 5%;
+    top: 75%;
+}

@@ -36,6 +36,10 @@
      transition: all 0.2s ease-in-out 0s;
 }
 
+.btn:hover{
+    background: rgb(240, 176, 154);
+}
+
 .userImg{
     height: 8vmin;
     width: 8min;
@@ -104,8 +108,17 @@
     line-height: 2.0rem;
 }
 
+
+.searchResult .searchEntry:hover{
+    background: rgb(240, 176, 154);
+}
+
 .searchEntry .searchUserImg{
-    border-radius: 50%;
+    border-radius: 0.5rem;
+    height:100%;
+    width: auto;
+    float:left;
+    margin-left: 1rem;
 }
 
 .searchBar{
@@ -229,6 +242,7 @@
 .invisible {
     display: none
 }
+
 
 
 
