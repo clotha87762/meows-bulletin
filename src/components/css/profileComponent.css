@@ -1,5 +1,10 @@
 
-
+.postLoading{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
 
 .profileCard{
     background: rgba(230, 141, 90, 0.9);
@@ -10,6 +15,7 @@
     display: flex;
     align-items: center;
     box-shadow: inset 0px 0px 10px black;
+    margin-top: 10vh;
 }
 
 
@@ -67,4 +73,9 @@
     position: absolute;
     right: 5%;
     top: 75%;
+}
+
+
+.postInterval{
+    height: 50px;
 }

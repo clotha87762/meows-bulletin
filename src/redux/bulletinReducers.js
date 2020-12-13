@@ -8,12 +8,18 @@ const bulletinReducer = (
         showCreatePost: false,
         showSearchUsers: false,
         postsReady : false,
-        followErrorMsg: null
+        followErrorMsg: null,
+        otherProfile: null,
+        otherPosts: Immutable.List()
     },
     action
 ) => {
 
     switch (action.type) {
+        case ActionTypes.SET_OTHER_POSTS:
+            return {...state , otherPosts: action.payload}
+        case ActionTypes.SET_OTHER_PROFILE:
+            return {...state, otherProfile: action.payload}
         case ActionTypes.SET_POSTS_READY:
             return {...state, postsReady: action.payload}
         case ActionTypes.SET_SEARCH_USER:

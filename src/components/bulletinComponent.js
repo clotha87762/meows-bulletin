@@ -5,13 +5,14 @@ import { action } from 'redux'
 import { connect } from 'react-redux'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { withRouter, Switch, Route, NavLink, Redirect } from 'react-router-dom'
+import { withRouter, Switch, Route, NavLink, Redirect , useHistory } from 'react-router-dom'
 import { set_posts, set_posts_ready, show_create_post, set_search_user, show_search_user } from '../redux/bulletinActions'
 import webAPI from '../webapi'
 import './css/bulletinComponent.css'
 import '../common/DateFormat'
 import Immutable from 'immutable'
 import ProfileComponent from './profileComponent'
+
 
 
 const mapStateToProps = (state) => {
@@ -22,7 +23,9 @@ const mapStateToProps = (state) => {
         showCreatePost: state.bulletin.showCreatePost, //好像沒用?
         showSearchUsers: state.bulletin.showSearchUsers,
         postsReady: state.bulletin.postsReady,
-        profile: state.app.profile
+        profile: state.app.profile,
+        otherProfile: state.bulletin.otherProfile,
+        otherPosts: state.bulletin.otherPosts.toJS()
     }
 }
 
@@ -34,7 +37,8 @@ const mapDispatchToProps = (dispatch) => {
         fetchUsers: (userPrefix) => { webAPI.fetchUsers(dispatch, userPrefix) },
         login: () => { webAPI.login(dispatch, '123', '123123') },
         deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
-        editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) }
+        editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) },
+        fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
     }
 }
 
@@ -57,7 +61,8 @@ class BulletinComponent extends Component {
 
         this.state = {
             ...this.state,
-            imgToUploadName: ''
+            imgToUploadName: '',
+            fetchingProfile: false
         }
 
         ///////////////////////////////
@@ -73,6 +78,8 @@ class BulletinComponent extends Component {
     componentDidUpdate() {
 
     }
+
+
 
 
     componentWillMount() {
@@ -144,11 +151,7 @@ class BulletinComponent extends Component {
             submitEdit.classList.remove('order-1')
             submitEdit.classList.add('invisible')
 
-            // currently, not able to edit image
-
             this.props.editPost(post._id, contentEdit.value, post.image)
-
-            //this.setState( this.state )
 
         }
 
@@ -188,11 +191,20 @@ class BulletinComponent extends Component {
                         </div>
 
                     </div>
+
                     <div className='row justify-content-end'>
-                        <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
-                        <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
-                        <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
+                        {
+                            this.props.profile.user === post.user?
+                            <>
+                            <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
+                            <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
+                            <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
+                            </>
+                            :
+                            null
+                        }
                     </div>
+
                 </div >
             </div>
         )
@@ -346,8 +358,13 @@ class BulletinComponent extends Component {
 
         let searchOnBlur = () => {
             let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
-            searchResultDiv.classList.add('invisible')
 
+        }
+
+        let linkToProfile = (profile) =>{
+            console.log('link')
+            console.log(profile.user)
+            window.location.href = ( `${this.props.match.path}/profile/` + profile.user )
         }
 
 
@@ -380,7 +397,7 @@ class BulletinComponent extends Component {
                             this.props.searchUsers.map(
                                 (item) => {
                                     return (
-                                        <div className='searchEntry'>
+                                        <div onClick={()=>{linkToProfile(item)}} key={item.user} className='searchEntry'>
                                             <span><img src={item.image} className='searchUserImg' /></span>
                                             { item.alias + '@' + item.user}
                                         </div>
@@ -399,18 +416,31 @@ class BulletinComponent extends Component {
         )
     }
 
-    renderProfile(){
+    renderProfile({ match }) {
+
         let header = this.renderHeader()
-        return(
+        console.log('params')
+        console.log(match.params)
+
+        let userId = match.params.profileId
+
+        if (userId === undefined && this.props.profile !== null) {
+            userId = this.props.profile.user
+        }
+
+        return (
             <>
-            {header}
-            { this.props.profile===null?
-                <div />
-                :
-                <ProfileComponent profile={this.props.profile} />
-            }
+                {header}
+                {  (userId === undefined || this.props.profile===null)?
+                    <div />
+                    :
+                    <ProfileComponent renderPost={this.renderPost} myId={this.props.profile.user} 
+                    posts={this.props.otherPosts} profileId={userId} fetchProfile={this.props.fetchProfile} 
+                    profile={this.props.otherProfile} fetchUserPost={this.props.fetchUserPost} />
+                }
             </>
         )
+
     }
 
     render() {
@@ -419,9 +449,10 @@ class BulletinComponent extends Component {
         return (
             <div>
                 <Route exact path={`${this.props.match.path}/`} component={this.renderPostsPage} />
-                <Route path={`${this.props.match.path}/explore`} component={this.renderPostsPage} />
-                <Route path={`${this.props.match.path}/create`} component={this.renderCreatePost} />
-                <Route path={`${this.props.match.path}/profile`} component={this.renderProfile} />
+                <Route exact path={`${this.props.match.path}/explore`} component={this.renderPostsPage} />
+                <Route exact path={`${this.props.match.path}/create`} component={this.renderCreatePost} />
+                <Route exact path={`${this.props.match.path}/profile`} component={this.renderProfile} />
+                <Route path={`${this.props.match.path}/profile/:profileId`} component={this.renderProfile} />
             </div>
         )
     }
