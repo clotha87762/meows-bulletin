@@ -38,62 +38,81 @@ const bulletinReducer = (
         case ActionTypes.DELETE_POST:{
 
             let allPosts = state.posts
-            //console.log(allPosts)
+            let allOtherPosts = state.otherPosts
 
-            let post = allPosts.filter(
-                (item)=>{
-                    if(item.get('_id') === action.payload){
-                        return true
+            let filterAndDelete = (target) =>{
+                let post = target.filter(
+                    (item)=>{
+                        if(item.get('_id') === action.payload){
+                            return true
+                        }
+                        return false
                     }
-                    return false
-                }
-            )
+                )
+                post.forEach(
+                    (item)=>{
+                        console.log(item)
+                        target = target.delete( target.indexOf(item))
+                    }
+                )
+                return target
+            }
 
-            post.forEach(
-                (item)=>{
-                    allPosts = allPosts.delete( allPosts.indexOf(item))
-                }
-            )
+            allPosts = filterAndDelete(allPosts)
+            allOtherPosts = filterAndDelete(allOtherPosts)
 
             //console.log('after delete')
-            //console.log(allPosts)
+            //console.log(allOtherPosts)
 
-            return {...state , posts: allPosts}
+            return {...state , posts: allPosts , otherPosts : allOtherPosts}
         }
         case ActionTypes.EDIT_POST:{
 
             let allPosts = state.posts
+            let allOtherPosts = state.otherPosts
+            console.log('edit!')
+            console.log(action.payload)
 
-            let post = allPosts.filter(
-                (item)=>{
-                    if(item.get('_id') === action.payload.id){
-                        return true
+            let filterAndEdit = (target) =>{
+
+                let post = target.filter(
+                    (item)=>{
+                        console.log(item.get('_id'))
+                        if(item.get('_id') === action.payload.id){
+                            return true
+                        }
+                        return false
                     }
-                    return false
-                }
-            )
+                )
 
-            post.forEach(
+                post.forEach(
                 
-                (item)=>{
+                    (item)=>{
+    
+                        let targetPost = target.get( target.indexOf(item) ) 
 
-                    let targetPost = allPosts.get( allPosts.indexOf(item) ) 
+                        console.log('edit post')
+                        console.log(targetPost)
+                        
+                        let toMerge = {
+                            content: action.payload.content,
+                            image: action.payload.image
+                        }
 
-                    console.log(targetPost)
-                    
-                    let toMerge = {
-                        content: action.payload.content,
-                        image: action.payload.image
+                        targetPost = targetPost.merge( Immutable.Map(toMerge) )
+    
+                        target = target.set( target.indexOf(item) , targetPost) 
                     }
-                    targetPost = targetPost.merge( Immutable.Map(toMerge) )
+                )
 
-                    allPosts = allPosts.set(allPosts.indexOf(item) , targetPost) 
-                }
-            )
+                return target
+            }
 
+            allPosts = filterAndEdit(allPosts)
+            allOtherPosts = filterAndEdit(allOtherPosts)
             //setTimeout( ()=>{console.log(allPosts.get(0) )} , 1000)
             //return {...state , posts: allPosts}
-            return {...state , posts: allPosts}
+            return {...state , posts: allPosts , otherPosts: allOtherPosts}
         }
         default:
             return state

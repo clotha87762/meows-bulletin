@@ -17,7 +17,7 @@ function App( { isAuthed , profile , logout } ) {
 
   return (
 
-    <BrowserRouter>
+    <BrowserRouter >
 
       <div className="App" style={{ position: 'relative', backgroundImage: `url('/assets/bg.jpg')` }} >
         <div style={{ minHeight: '100vh' }}>
@@ -54,7 +54,7 @@ function App( { isAuthed , profile , logout } ) {
 export default connect(
   (state) => ({
     isAuthed: state.app.isLogined,
-    profile: state.app.profile
+    profile: state.app.profile.toJS()
   }),
   (dispatch) => (
     {

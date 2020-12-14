@@ -14,7 +14,6 @@ import Immutable from 'immutable'
 import ProfileComponent from './profileComponent'
 
 
-
 const mapStateToProps = (state) => {
     return {
         posts: state.bulletin.posts.toJS(),
@@ -23,7 +22,7 @@ const mapStateToProps = (state) => {
         showCreatePost: state.bulletin.showCreatePost, //好像沒用?
         showSearchUsers: state.bulletin.showSearchUsers,
         postsReady: state.bulletin.postsReady,
-        profile: state.app.profile,
+        profile: state.app.profile.toJS(),
         otherProfile: state.bulletin.otherProfile,
         otherPosts: state.bulletin.otherPosts.toJS()
     }
@@ -39,8 +38,10 @@ const mapDispatchToProps = (dispatch) => {
         deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
         editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) },
         fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
+        editProfile: (profile) => { webAPI.editProfile(dispatch, profile) }
     }
 }
+
 
 class BulletinComponent extends Component {
 
@@ -358,13 +359,17 @@ class BulletinComponent extends Component {
 
         let searchOnBlur = () => {
             let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
-
+            setTimeout( ()=>{searchResultDiv.classList.add('invisible')} , 100 )
+            //searchResultDiv.classList.add('invisible')
         }
 
         let linkToProfile = (profile) =>{
             console.log('link')
             console.log(profile.user)
-            window.location.href = ( `${this.props.match.path}/profile/` + profile.user )
+           
+            this.props.history.replace( ( `${this.props.match.path}/profile/` + profile.user ) )
+            //this.props.history.go()
+            
         }
 
 
@@ -373,7 +378,7 @@ class BulletinComponent extends Component {
 
                 <span style={{ flexBasis: '1vw' }} />
 
-                <img className='userImg' src={this.props.profile ? "/assets/yoo.png" : "/assets/yoo.png"} />
+                <img className='userImg' src={this.props.profile ? this.props.profile.profileImage : "/assets/yoo.png"} />
                 <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
                 <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
@@ -392,7 +397,7 @@ class BulletinComponent extends Component {
 
                 <div ref={searchUserRef} className='searchUser'>
 
-                    <div className='searchResult invisible'>
+                    <div  className='searchResult invisible'>
                         {
                             this.props.searchUsers.map(
                                 (item) => {
@@ -407,7 +412,7 @@ class BulletinComponent extends Component {
                         }
                     </div>
 
-                    <input onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBar' type='text' placeholder='search other user by account'>
+                    <input  onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBar' type='text' placeholder='search other user by account'>
                     </input>
 
                 </div>
@@ -434,9 +439,11 @@ class BulletinComponent extends Component {
                 {  (userId === undefined || this.props.profile===null)?
                     <div />
                     :
-                    <ProfileComponent renderPost={this.renderPost} myId={this.props.profile.user} 
-                    posts={this.props.otherPosts} profileId={userId} fetchProfile={this.props.fetchProfile} 
-                    profile={this.props.otherProfile} fetchUserPost={this.props.fetchUserPost} />
+                    <ProfileComponent editProfile={this.props.editProfile} renderPost={this.renderPost} 
+                    myId={this.props.profile.user} posts={this.props.otherPosts} 
+                    profileId={userId} fetchProfile={this.props.fetchProfile} 
+                    profile={ userId===this.props.profile.user?  this.props.profile : this.props.otherProfile} 
+                    fetchUserPost={this.props.fetchUserPost} />
                 }
             </>
         )

@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import { set_news_ready, set_news } from './redux/mainActions'
 import { on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg } from './redux/loginAction'
 import { set_other_posts, set_other_profile, delete_post, edit_post, set_random_posts, set_posts, set_search_user, set_posts_ready, show_create_post, show_search_user } from './redux/bulletinActions'
-import { set_login, set_profile } from './redux/appActions'
+import { edit_profile, set_login, set_profile } from './redux/appActions'
 import { createBrowserHistory } from 'history'
 
 
@@ -365,13 +365,25 @@ export default {
 
     },
 
+    editProfile: (dispatch , edit) =>{
+        let toMerge = {}
+        if(edit.hasOwnProperty('alias'))
+            toMerge.alias = edit.alias
+        if(edit.hasOwnProperty('profileImage'))
+            toMerge.profileImage = edit.profileImage
+        if(edit.hasOwnProperty('intro'))
+            toMerge.intro = edit.intro
+        
+        dispatch( edit_profile(toMerge) )
+    },
+
     fetchProfile: (dispatch, profileId , callBack) => {
         let otherProfiles = [
             {
                 user: "aaaa123",
                 alias: "Alann",
                 profileImage: '/assets/yoo.png',
-                intro: 'aaaaaaaaaaaaaaaaaaaaaaaaa\naaaaaaaaaaaaaaa\naaaaaaaaaaaaaaaa'
+                intro: "1231231231231231\n123123123123\n123123123123"
             },
             {
                 user: "bbbb456",
@@ -412,12 +424,12 @@ export default {
 
     login: (dispatch, account, password) => {
 
-        let profile = {
+        let profile = Immutable.fromJS({
             user: "aaaa123",
             alias: "Alann",
             profileImage: '/assets/yoo.png',
             intro: "1231231231231231\n123123123123\n123123123123"
-        }
+        })
 
         dispatch(set_profile(profile))
         dispatch(on_login())

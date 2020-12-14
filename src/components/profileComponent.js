@@ -21,13 +21,17 @@ class ProfileComponent extends Component {
         this.state = {
             ...this.state,
             profileReady: false,
+            editingAlias: false,
+            editingIntro: false,
+            editingImage: false
         }
-
-
 
         //this.renderProfilePost = this.renderProfilePost.bind(this)
         this.renderProfilePosts = this.renderProfilePosts.bind(this)
         this.renderLoading = this.renderLoading.bind(this)
+
+        this.profileCardRef = React.createRef()
+        this.uploadProfileImageRef = React.createRef()
 
         this.renderProfilePost = this.props.renderPost.bind(this)
     }
@@ -39,140 +43,30 @@ class ProfileComponent extends Component {
 
     componentWillMount() {
 
-        if (this.props.profile === null || (this.props.profileId !== this.props.profile.user) ) {
+        if (this.props.profile === null || (this.props.profileId !== this.props.profile.user)) {
             this.setState({ profileReady: false })
             this.props.fetchProfile(this.props.profileId, this)
-            this.props.fetchUserPost(this.props.profileId)
         }
         else {
             this.setState({ profileReady: true })
         }
+        this.props.fetchUserPost(this.props.profileId)
     }
 
     renderLoading() {
         return (
-            <div className='postLoading' style={{marginTop:'10vh'}}>
+            <div className='postLoading' style={{ marginTop: '10vh' }}>
                 <span style={{ marginTop: '10px' }} className="fa fa-spinner fa-pulse fa-2x fa-fw text-warning"></span>
                 <b style={{ color: 'white', WebkitTextStroke: '1px black' }}> Posts Now Loading... </b>
             </div>
         )
     }
-    /*
-    renderProfilePost(post) {
 
-        let postCardRef = React.createRef()
-
-
-        let deletePost = () => {
-            //console.log('delete'+ post._id)
-            //postCardRef.current.style.opacity = 0
-            postCardRef.current.classList.add('disappearing')
-            this.props.deletePost(post._id)
-        }
-
-        let editPost = () => {
-
-            let contentEdit = postCardRef.current.querySelector('.contentEdit')
-            let submitEdit = postCardRef.current.querySelector('.submitEditBtn')
-            let editPost = postCardRef.current.querySelector('.editPostBtn')
-            let postCardContent = postCardRef.current.querySelector('.postCardContent')
-
-            contentEdit.classList.remove('invisible')
-            postCardContent.classList.add('invisible')
-
-            submitEdit.classList.remove('invisible')
-            submitEdit.classList.add('order-1')
-            editPost.classList.add('order-0')
-
-            editPost.classList.add('invisible')
-
-
-            contentEdit.value = post.content
-        }
-
-        let submitEdit = () => {
-
-            let contentEdit = postCardRef.current.querySelector('.contentEdit')
-            let submitEdit = postCardRef.current.querySelector('.submitEditBtn')
-            let editPost = postCardRef.current.querySelector('.editPostBtn')
-            let postCardContent = postCardRef.current.querySelector('.postCardContent')
-
-
-            contentEdit.classList.add('invisible')
-            postCardContent.classList.remove('invisible')
-
-
-            editPost.classList.remove('invisible')
-            editPost.classList.remove('order-0')
-
-            submitEdit.classList.remove('order-1')
-            submitEdit.classList.add('invisible')
-
-            this.props.editPost(post._id, contentEdit.value, post.image)
-
-        }
-
-        return (
-            <div ref={postCardRef} key={post._id} >
-                <div className='postInterval' />
-                <div className='container postCard'>
-                    <div className='row' style={{ marginTop: '10px' }}>
-                        <div className='col-1'>
-                            <img src='/assets/yoo.png' className='postCardImg' />
-                        </div>
-                        <div className='col-5 offset-1'>
-                            <div className='postCardUser'>
-                                <b >{post.alias + '@' + post.user}</b>
-                            </div>
-                        </div>
-                        <div className="col-4 ml-auto">
-                            <div className='postCardDate'>
-                                {post.date.format("yyyy-MM-dd hh:mm:ss")}
-                            </div>
-                        </div>
-                    </div>
-                    <hr className='separateLine' />
-                    <div className='row'>
-                        <div className='postCardMain col-10 offset-1'>
-
-                            <div className='postCardContent'>
-
-                                {post.content}
-
-                            </div>
-
-                            <textarea className='invisible contentEdit' name='createPost' id='createPost'>
-
-                            </textarea>
-
-                        </div>
-
-                    </div>
-
-                    <div className='row justify-content-end'>
-                        {
-                            this.props.profile.user === post.user?
-                            <>
-                            <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
-                            <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
-                            <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
-                            </>
-                            :
-                            null
-                        }
-                    </div>
-
-                </div >
-            </div>
-        )
-
-    }
-    */
 
     renderProfilePosts() {
         if (this.props.posts.length !== 0) {
             return (
-                <div style={{marginTop:'10vh'}}>
+                <div style={{ marginTop: '10vh' }}>
                     {
                         this.props.posts.map((item) => {
                             return this.renderProfilePost(item)
@@ -191,42 +85,123 @@ class ProfileComponent extends Component {
 
     render() {
 
-        console.log(this.props.profileId)
+        console.log('profile render!')
+        console.log(this.props.profile)
+        console.log(this.state)
 
         let posts = this.renderProfilePosts()
 
+        let editAlias = () => {
+
+            let aliasTextarea = this.profileCardRef.current.querySelector('.aliasTextarea')
+            aliasTextarea.value = this.props.profile.alias
+            aliasTextarea.classList.remove('invisible')
+            aliasTextarea.focus()
+
+            this.setState({ editingAlias: true })
+
+        }
+
+        let editIntro = () => {
+            let introTextarea = this.profileCardRef.current.querySelector('.introTextarea')
+            introTextarea.value = this.props.profile.intro
+            introTextarea.classList.remove('invisible')
+            introTextarea.focus()
+
+            this.setState({ editingIntro: true })
+        }
+
+        let editProfileImage = () => {
+            this.uploadProfileImageRef.current.click()
+        }
+
+        let uploadProfileImage = () =>{
+            console.log(this.uploadProfileImageRef.current.files[0])
+            this.props.editProfile({ profileImage: '/assets/'+this.uploadProfileImageRef.current.files[0].name })
+        }
+
+        let onEditAliasBlur = () => {
+
+            console.log('on alias blur')
+
+            this.setState({
+                editingAlias: false,
+            })
+            let aliasTextarea = this.profileCardRef.current.querySelector('.aliasTextarea')
+            aliasTextarea.classList.add('invisible')
+
+            if (aliasTextarea.value !== this.props.profile.alias) {
+                //////////////////////************************* */
+                // remember to re-fetch posts, in order to refresh name & image on posts card
+                /////////////////////************************** */
+                this.props.editProfile({ alias: aliasTextarea.value })
+            }
+
+        }
+
+        let onEditIntroBlur = () => {
+            console.log('on intro blur')
+
+            this.setState({
+                editingIntro: false,
+            })
+
+            let introTextarea = this.profileCardRef.current.querySelector('.introTextarea')
+            introTextarea.classList.add('invisible')
+
+            if (introTextarea.value !== this.props.profile.intro) {
+                //////////////////////************************* */
+                // remember to re-fetch posts, in order to refresh name & image on posts card
+                /////////////////////************************** */
+                this.props.editProfile({ intro: introTextarea.value })
+            }
+        }
+
+   
         if (this.state.profileReady && this.props.profile !== null) {
 
             return (
                 <div className='postContainer' style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div className='container'>
-                        <div className='profileCard'>
+                        <div ref={this.profileCardRef} className='profileCard'>
 
                             <div style={{ position: 'relative', height: '100%', marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
                                 <img className='profileCardImg' src={this.props.profile.profileImage} />
                                 {
                                     this.props.myId === this.props.profile.user ?
-                                        <Button className='editImg ' color='primary'> <i className="fa fa-edit" /> </Button>
+                                        <>
+                                            <input ref={this.uploadProfileImageRef} type="file" id="uploadProfileImg" accept="image/*" style={{ display: 'none' }} onChange={() => { uploadProfileImage() }} />
+                                            <Button onClick={editProfileImage} className='editImg ' color='primary'> <i className="fa fa-edit" /> </Button>
+                                        </>
                                         :
                                         null
                                 }
                             </div>
                             <div className='textBlock'>
                                 <div className='profileAlias'>
-                                    {this.props.profile.alias}
                                     {
-                                        this.props.myId === this.props.profile.user ?
-                                            <Button className='editAlias ' color='primary'> <i className="fa fa-edit" /> </Button>
+                                        <>
+                                            <textarea rows='1' onBlurCapture={onEditAliasBlur} className='invisible aliasTextarea' />
+                                            {this.state.editingAlias ? null : this.props.profile.alias}
+                                        </>
+                                    }
+                                    {
+                                        (this.props.myId === this.props.profile.user && !this.state.editingAlias) ?
+                                            <Button onClick={editAlias} className='editAlias ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
                                             null
                                     }
                                 </div>
                                 <hr />
                                 <div className='profileDescription'>
-                                    {this.props.profile.intro}
+                                    {<>
+                                        <textarea onBlurCapture={onEditIntroBlur} className='invisible introTextarea' />
+                                        {this.state.editingIntro ? null : this.props.profile.intro}
+                                    </>
+                                    }
                                     {
-                                        this.props.myId === this.props.profile.user ?
-                                            <Button className='editDescription ' color='primary'> <i className="fa fa-edit" /> </Button>
+                                        (this.props.myId === this.props.profile.user && !this.state.editingIntro) ?
+                                            <Button onClick={editIntro} className='editDescription ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
                                             null
                                     }
