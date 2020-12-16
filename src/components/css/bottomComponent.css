@@ -1,0 +1,68 @@
+
+.bottomPanel{
+    position:fixed;
+    bottom: 0px;
+    height: 8vh;
+    width: 100vw;
+    background: rgba( 235 , 97 , 52 , 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+}
+
+.bottomBlock{
+    flex-grow: 2;
+    border: 2px solid rgba(125,125,125,0.7);
+    text-align: center;
+    line-height: 8vh;
+}
+
+.bottomUserBlock{
+    flex-grow: 1;
+    border: 2px solid rgba(125,125,125,0.7);
+    text-align: center;
+    line-height: 8vh;
+    height:100%;
+
+}
+
+.bottomUserBlock .bottomProfileImage{
+    border-radius: 50%;
+    max-height: 80%;
+    width: auto;
+}
+
+.popoutPanel{
+    background: rgba( 235 , 97 , 52 , 0.8);
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    bottom: -100vh;
+    transition: bottom 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: -1;
+
+}
+
+.popoutPanel.poppedOut{
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    transition: bottom 0.5s ease-out;
+}
+
+.popoutBlock{
+    background: rgba( 235 , 97 , 52 , 0.9);
+    height: 15vh;
+    width: 100%;
+    border: solid 2px;
+    border-color: #530000a8;
+    line-height: 15vh;
+    box-shadow: inset 0px 0px 15px brown;
+    font-size: 30px;
+    font-family: fantasy;
+}

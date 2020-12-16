@@ -5,7 +5,7 @@ import { action } from 'redux'
 import { connect } from 'react-redux'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { withRouter, Switch, Route, NavLink, Redirect , useHistory } from 'react-router-dom'
+import { withRouter, Switch, Route, NavLink, Redirect, useHistory } from 'react-router-dom'
 import { set_posts, set_posts_ready, show_create_post, set_search_user, show_search_user } from '../redux/bulletinActions'
 import webAPI from '../webapi'
 import './css/bulletinComponent.css'
@@ -195,14 +195,14 @@ class BulletinComponent extends Component {
 
                     <div className='row justify-content-end'>
                         {
-                            this.props.profile.user === post.user?
-                            <>
-                            <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
-                            <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
-                            <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
-                            </>
-                            :
-                            null
+                            this.props.profile.user === post.user ?
+                                <>
+                                    <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
+                                    <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
+                                    <Button onClick={deletePost} className='order-3 functionBtn' color='primary'> <i className="fa fa-times-circle" /> </Button>
+                                </>
+                                :
+                                null
                         }
                     </div>
 
@@ -212,6 +212,7 @@ class BulletinComponent extends Component {
     }
 
     renderPosts() {
+
         console.log('posts')
         console.log(this.props.location.pathname)
 
@@ -350,75 +351,107 @@ class BulletinComponent extends Component {
         }
 
         let searchOnFocus = (prefix) => {
-
             this.props.fetchUsers(prefix)
 
-            let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
+            let query = this.isMobile? '.searchResultMobile' : '.searchResult'
+            let searchResultDiv = searchUserRef.current.querySelector(query)
             searchResultDiv.classList.remove('invisible')
+
         }
 
         let searchOnBlur = () => {
-            let searchResultDiv = searchUserRef.current.querySelector('.searchResult')
-            setTimeout( ()=>{searchResultDiv.classList.add('invisible')} , 100 )
+            let query = this.isMobile? '.searchResultMobile' : '.searchResult'
+            let searchResultDiv = searchUserRef.current.querySelector(query)
+
+            setTimeout(() => { searchResultDiv.classList.add('invisible') }, 100)
             //searchResultDiv.classList.add('invisible')
         }
 
-        let linkToProfile = (profile) =>{
+        let linkToProfile = (profile) => {
             console.log('link')
             console.log(profile.user)
-           
-            this.props.history.replace( ( `${this.props.match.path}/profile/` + profile.user ) )
+
+            this.props.history.replace((`${this.props.match.path}/profile/` + profile.user))
             //this.props.history.go()
-            
+
         }
 
+        if (this.isMobile) {
+            return (
+                <div className='bulletinHeaderMobile'>
+                    <div ref={searchUserRef} className='searchUserMobile'>
 
-        return (
-            <div className='bulletinHeader' style={{ display: 'flex' }}>
+                        <div className='searchResultMobile invisible'>
+                            {
+                                this.props.searchUsers.map(
+                                    (item) => {
+                                        return (
+                                            <div onClick={() => { linkToProfile(item) }} key={item.user} className='searchEntry'>
+                                                <span><img src={item.image} className='searchUserImg' /></span>
+                                                { item.alias + '@' + item.user}
+                                            </div>
+                                        )
+                                    }
+                                )
+                            }
+                        </div>
 
-                <span style={{ flexBasis: '1vw' }} />
+                        <input onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBarMobile' type='text' placeholder='search other user by account'>
+                        </input>
 
-                <img className='userImg' src={this.props.profile ? this.props.profile.profileImage : "/assets/yoo.png"} />
-                <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
-                <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+                    </div>
+                </div>
+            )
+        }
+        else {
 
-                <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/create`}><button className='newPostButton btn' ><span className="fa fa-plus-square fa-fw" /><span className='textself'>  &nbsp;New Post&nbsp;  </span></button></NavLink>
-                <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+            return (
+                <div className='bulletinHeader' style={{ display: 'flex' }}>
 
-                <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/`}>
-                    <button className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
-                </NavLink>
-                <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+                    <span style={{ flexBasis: '1vw' }} />
 
-                <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/explore`}>
-                    <button className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
-                </NavLink>
-                <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+                    <img className='userImg' src={this.props.profile ? this.props.profile.profileImage : "/assets/yoo.png"} />
+                    <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
+                    <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
-                <div ref={searchUserRef} className='searchUser'>
+                    <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/create`}><button className='newPostButton btn' ><span className="fa fa-plus-square fa-fw" /><span className='textself'>  &nbsp;New Post&nbsp;  </span></button></NavLink>
+                    <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
-                    <div  className='searchResult invisible'>
-                        {
-                            this.props.searchUsers.map(
-                                (item) => {
-                                    return (
-                                        <div onClick={()=>{linkToProfile(item)}} key={item.user} className='searchEntry'>
-                                            <span><img src={item.image} className='searchUserImg' /></span>
-                                            { item.alias + '@' + item.user}
-                                        </div>
-                                    )
-                                }
-                            )
-                        }
+                    <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/`}>
+                        <button className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
+                    </NavLink>
+                    <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+
+                    <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/explore`}>
+                        <button className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
+                    </NavLink>
+                    <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
+
+                    <div ref={searchUserRef} className='searchUser'>
+
+                        <div className='searchResult invisible'>
+                            {
+                                this.props.searchUsers.map(
+                                    (item) => {
+                                        return (
+                                            <div onClick={() => { linkToProfile(item) }} key={item.user} className='searchEntry'>
+                                                <span><img src={item.image} className='searchUserImg' /></span>
+                                                { item.alias + '@' + item.user}
+                                            </div>
+                                        )
+                                    }
+                                )
+                            }
+                        </div>
+
+                        <input onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBar' type='text' placeholder='search other user by account'>
+                        </input>
+
                     </div>
 
-                    <input  onBlur={searchOnBlur} onFocus={(e) => { searchOnFocus(e.target.value) }} onChange={(e) => { fetchSearchResult(e.target.value) }} className='searchBar' type='text' placeholder='search other user by account'>
-                    </input>
-
                 </div>
-
-            </div>
-        )
+            )
+        }
     }
 
     renderProfile({ match }) {
@@ -436,14 +469,14 @@ class BulletinComponent extends Component {
         return (
             <>
                 {header}
-                {  (userId === undefined || this.props.profile===null)?
+                {  (userId === undefined || this.props.profile === null) ?
                     <div />
                     :
-                    <ProfileComponent editProfile={this.props.editProfile} renderPost={this.renderPost} 
-                    myId={this.props.profile.user} posts={this.props.otherPosts} 
-                    profileId={userId} fetchProfile={this.props.fetchProfile} 
-                    profile={ userId===this.props.profile.user?  this.props.profile : this.props.otherProfile} 
-                    fetchUserPost={this.props.fetchUserPost} />
+                    <ProfileComponent editProfile={this.props.editProfile} renderPost={this.renderPost}
+                        myId={this.props.profile.user} posts={this.props.otherPosts}
+                        profileId={userId} fetchProfile={this.props.fetchProfile}
+                        profile={userId === this.props.profile.user ? this.props.profile : this.props.otherProfile}
+                        fetchUserPost={this.props.fetchUserPost} />
                 }
             </>
         )
@@ -451,6 +484,8 @@ class BulletinComponent extends Component {
     }
 
     render() {
+
+        this.isMobile = window.screen.width < window.screen.height
 
         console.log('renderrr')
         return (

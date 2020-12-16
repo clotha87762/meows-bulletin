@@ -9,6 +9,13 @@
     align-items: center;
 }
 
+.bulletinHeaderMobile{
+    background: rgba(223, 136, 66, 0.9);
+    width: 100%;
+    padding: 10px 0px;
+    
+}
+
 @media screen and (max-width: 800px) {
     .bulletinHeader {
         max-width: 75vw;
@@ -87,6 +94,12 @@
     position: relative;
 }
 
+.searchUserMobile{
+    position: relative;
+    width:100%;
+}
+
+
 .searchResult{
     background: rgba(255, 223, 211, 0.8);
     position: absolute;
@@ -97,29 +110,22 @@
     padding: 0px 0px 0px 0px;
     border-radius: 3px;
     z-index: 1;
-
+    
 }
 
-.searchResult .searchEntry{
-    border-bottom: solid 2px rgba(0, 0, 0, 0.5);
-    padding: 0px 0px;
-    margin: 0px;
-    height: 2.0rem;
-    line-height: 2.0rem;
+
+.searchResultMobile{
+    background: rgba(255, 223, 211, 0.8);
+    position: absolute;
+    width: 100%;
+    max-width:80%;
+    transform: translateY(2.0rem);
     overflow: hidden;
-}
-
-
-.searchResult .searchEntry:hover{
-    background: rgb(240, 176, 154);
-}
-
-.searchEntry .searchUserImg{
-    border-radius: 0.5rem;
-    height:100%;
-    width: auto;
-    float:left;
-    margin-left: 1rem;
+    padding: 0px 0px 0px 0px;
+    border-radius: 3px;
+    z-index: 1;
+    left:10%;
+    
 }
 
 .searchBar{
@@ -131,6 +137,41 @@
     width:100%;
     overflow: hidden;
 }
+
+.searchBarMobile{
+    background-color: rgb(255, 223, 211);
+    border-radius: 10px;
+    height: 2.0rem;
+    text-shadow:0 0px 0px;
+    margin: auto;
+    width:100%;
+    max-width: 80%;
+    overflow: hidden;
+}
+
+.searchResult .searchEntry ,.searchResultMobile .searchEntry{
+    border-bottom: solid 2px rgba(0, 0, 0, 0.5);
+    padding: 0px 0px;
+    margin: 0px;
+    height: 2.0rem;
+    line-height: 2.0rem;
+    overflow: hidden;
+}
+
+
+.searchResult .searchEntry:hover, .searchResultMobile .searchEntry:hover{
+    background: rgb(240, 176, 154);
+}
+
+.searchEntry .searchUserImg{
+    border-radius: 0.5rem;
+    height:100%;
+    width: auto;
+    float:left;
+    margin-left: 1rem;
+}
+
+
 
 .searchBar::placeholder{
     color: rgba(0, 0, 0, 0.15)

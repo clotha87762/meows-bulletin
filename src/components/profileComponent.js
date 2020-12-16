@@ -115,9 +115,9 @@ class ProfileComponent extends Component {
             this.uploadProfileImageRef.current.click()
         }
 
-        let uploadProfileImage = () =>{
+        let uploadProfileImage = () => {
             console.log(this.uploadProfileImageRef.current.files[0])
-            this.props.editProfile({ profileImage: '/assets/'+this.uploadProfileImageRef.current.files[0].name })
+            this.props.editProfile({ profileImage: '/assets/' + this.uploadProfileImageRef.current.files[0].name })
         }
 
         let onEditAliasBlur = () => {
@@ -157,7 +157,7 @@ class ProfileComponent extends Component {
             }
         }
 
-   
+
         if (this.state.profileReady && this.props.profile !== null) {
 
             return (
@@ -165,17 +165,18 @@ class ProfileComponent extends Component {
                     <div className='container'>
                         <div ref={this.profileCardRef} className='profileCard'>
 
-                            <div style={{ position: 'relative', height: '100%', marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
-                                <img className='profileCardImg' src={this.props.profile.profileImage} />
-                                {
-                                    this.props.myId === this.props.profile.user ?
-                                        <>
-                                            <input ref={this.uploadProfileImageRef} type="file" id="uploadProfileImg" accept="image/*" style={{ display: 'none' }} onChange={() => { uploadProfileImage() }} />
+                            <div style={{ position: 'relative', marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
+                                <div className='leftColumn' >
+                                    <input ref={this.uploadProfileImageRef} type="file" id="uploadProfileImg" accept="image/*" style={{ display: 'none' }} onChange={() => { uploadProfileImage() }} />
+                                    <img className='profileCardImg' src={this.props.profile.profileImage} />
+                                    {
+                                        this.props.myId === this.props.profile.user ?
                                             <Button onClick={editProfileImage} className='editImg ' color='primary'> <i className="fa fa-edit" /> </Button>
-                                        </>
-                                        :
-                                        null
-                                }
+                                            :
+                                            null
+                                    }
+                                </div>
+
                             </div>
                             <div className='textBlock'>
                                 <div className='profileAlias'>

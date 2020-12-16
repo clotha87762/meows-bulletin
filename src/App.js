@@ -4,6 +4,7 @@ import { Route, Link, Switch, Redirect } from 'react-router-dom'
 import SideComponent from './components/sideComponent'
 import MainComponent from './components/mainComponent'
 import LoginComponent from './components/loginComponent'
+import BottomComponent from './components/bottomComponent'
 import BulletinComponent from './components/bulletinComponent'
 import { connect } from 'react-redux'
 import webAPI from './webapi'
@@ -13,8 +14,11 @@ import { Col, Row } from 'reactstrap'
 
 function App( { isAuthed , profile , logout } ) {
 
-  isAuthed = true
+  //isAuthed = true
+  let isMobile = window.screen.width < window.screen.height
 
+  let colStyle = isMobile? {size:12, offset:0} : {size:10, offset:0}
+  
   return (
 
     <BrowserRouter >
@@ -22,9 +26,13 @@ function App( { isAuthed , profile , logout } ) {
       <div className="App" style={{ position: 'relative', backgroundImage: `url('/assets/bg.jpg')` }} >
         <div style={{ minHeight: '100vh' }}>
           
-          <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
-          
-          <Col xs={{ size: 10, offset: 0 }}>
+          { 
+            !isMobile?
+            <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
+            :
+            null
+          }
+          <Col xs={colStyle} style={{padding:'0px 0px'}}>
             {
               isAuthed?
                 <Switch>
@@ -42,6 +50,12 @@ function App( { isAuthed , profile , logout } ) {
                 </Switch>
             }
           </Col>
+          {
+            isMobile?
+            <BottomComponent profile={profile} isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
+            :
+            null
+          }
         </div>
       </div>
     </BrowserRouter>
@@ -54,7 +68,7 @@ function App( { isAuthed , profile , logout } ) {
 export default connect(
   (state) => ({
     isAuthed: state.app.isLogined,
-    profile: state.app.profile.toJS()
+    profile: state.app.profile===null? null : state.app.profile.toJS()
   }),
   (dispatch) => (
     {
