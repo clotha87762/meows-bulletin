@@ -53,7 +53,8 @@ class MainComponent extends Component {
             <div key={index} onClick={() => this.props.setOpenedIndex(index)}>
                 <div style={{ lineHeight: '40px', minHeight: '40px', boxShadow: 'inset 0px 0px 5px ', border: 'solid 0px', borderColor: `rgba(200,120,120,0.7)`, background: `rgba(240,130,80,0.7)`, fontSize: '20px' }}>
                     <div className='entryTitle'>
-                        <span ><b>{item.title}</b></span>
+                        <span ><b style={{ float: 'left', fontSize:'10px' , marginLeft:'3px' }}>{new Date(item.modifyDate).toLocaleDateString("en-US")}  </b>
+                        <b>{item.title}</b></span>
                         <br />
                         <div className='newsEntry' style={{ transition: 'max-height 0.6s ease-out', maxHeight: isOpen ? '100px' : '0px', fontSize: '15px' }}>
                             {isOpen ? item.content : null}
@@ -112,7 +113,7 @@ class MainComponent extends Component {
                 <Row>
                     <Col sm={{ size: 12 }} md={{ offset: 3, size: 6 }}>
                         <div style={{
-                            overflow: 'auto', maxHeight: '50vh', boxShadow: '10px 5px 10px',
+                            overflow: 'auto', maxHeight: '40vh', boxShadow: '10px 5px 10px',
                             border: 'solid 2px', borderColor: `rgba(30,30,30,1.0)`, borderRadius: '5px'
                         }}>
 
@@ -131,6 +132,6 @@ class MainComponent extends Component {
 
 }
 
-export default withRouter( connect(
+export default withRouter(connect(
     mapStateToProps, mapDispatchToProps
 )(MainComponent))

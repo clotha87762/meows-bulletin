@@ -46,6 +46,8 @@ class LoginComponent extends Component {
         this.onLoginClicked = this.onLoginClicked.bind(this)
         this.onSignUpClicked = this.onSignUpClicked.bind(this)
         this.onSubmitSignup = this.onSubmitSignup.bind(this)
+        
+        
 
         this.rememberRef = React.createRef()
 
@@ -87,24 +89,26 @@ class LoginComponent extends Component {
         console.log('on login up')
         console.log(this.state.loginAccount + '  ' + this.state.loginPassword)
 
-        this.props.login(this.state.loginAccount, this.state.loginPassword)
+        
 
         const cookies = new Cookies()
         console.log('check  ' + this.rememberRef.current.checked)
 
         if (this.rememberRef.current.checked === true) {
             console.log('rem true')
-            cookies.set('myaccount', this.state.loginAccount, { path: '/login' })
-            cookies.set('mypassword', this.state.loginPassword, { path: '/login' })
+            cookies.set('myaccount', this.state.loginAccount, { path: '/' })
+            cookies.set('mypassword', this.state.loginPassword, { path: '/' })
         } else {
             console.log('rem false')
-            cookies.remove('myaccount' , { path: '/login' })
-            cookies.remove('mypassword' , { path: '/login' })
+            cookies.remove('myaccount' , { path: '/' })
+            cookies.remove('mypassword' , { path: '/' })
         }
 
+        this.props.login(this.state.loginAccount, this.state.loginPassword)
 
-        this.state.loginAccount = ''
-        this.state.loginPassword = ''
+
+        this.setState({loginAccount:''}) 
+        this.setState({loginPassword:''}) 
     }
 
     onSignUpClicked(event) {
@@ -119,10 +123,9 @@ class LoginComponent extends Component {
         console.log(this.state.signupAccount + '  ' + this.state.signupPassword)
 
         this.props.signup(this.state.signupAccount, this.state.signupPassword)
-        this.state.signupAccount = ''
-        this.state.signupPassword = ''
+        this.setState({signupAccount:''}) 
+        this.setState({signupPassword : ''})
     }
-
 
 
     render() {
@@ -138,11 +141,11 @@ class LoginComponent extends Component {
                                 <Form style={{ margin: '20px 0px' }}>
                                     <FormGroup>
                                         <Label style={{ fontSize: '20px' }} for="account"><span className="fa fa-user-circle" /><b>&nbsp;Account</b></Label>
-                                        <Input type="acount" name="acount" id="account"  placeholder="Type yout account!" />
+                                        <Input  value={this.state.signupAccount} onChange={(e) => { this.setState({signupAccount : e.target.value}) }} type="acount" name="acount" id="account"  placeholder="Type yout account!" />
                                     </FormGroup>
                                     <FormGroup>
                                         <Label style={{ fontSize: '20px' }} for="password"><span className="fa fa-key" /><b>&nbsp;Password</b></Label>
-                                        <Input type="password" name="password" id="password" placeholder="Type yout password!" />
+                                        <Input value={this.state.signupPassword} onChange={(e) => { this.setState({signupPassword : e.target.value}) }} type="password" name="password" id="password" placeholder="Type yout password!" />
                                     </FormGroup>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <span>
@@ -177,11 +180,11 @@ class LoginComponent extends Component {
                                     <Form style={{ margin: '20px 0px' }}>
                                         <FormGroup>
                                             <Label style={{ fontSize: '20px' }} for="account"><span className="fa fa-user-circle" /><b>Account</b></Label>
-                                            <Input defaultValue={this.state.loginAccount} onChange={(e) => { this.state.loginAccount = e.target.value }} type="acount" name="acount" id="account" placeholder="Type yout account!" />
+                                            <Input value={this.state.loginAccount}  onChange={(e) => { this.setState({loginAccount : e.target.value}) }} type="acount" name="acount" id="account" placeholder="Type yout account!" />
                                         </FormGroup>
                                         <FormGroup>
                                             <Label style={{ fontSize: '20px' }} for="password"><span className="fa fa-key" /><b>Password</b></Label>
-                                            <Input defaultValue={this.state.loginPassword} onChange={(e) => { this.state.loginPassword = e.target.value }} type="password" name="password" id="password" placeholder="Type yout password!" />
+                                            <Input value={this.state.loginPassword}  onChange={(e) => { this.setState({loginPassword : e.target.value}) }} type="password" name="password" id="password" placeholder="Type yout password!" />
                                         </FormGroup>
                                         <FormGroup check>
                                             <Label check>

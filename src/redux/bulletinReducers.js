@@ -10,7 +10,8 @@ const bulletinReducer = (
         postsReady : false,
         followErrorMsg: null,
         otherProfile: null,
-        otherPosts: Immutable.List()
+        otherPosts: Immutable.List(),
+        userList: Immutable.List(),
     },
     action
 ) => {
@@ -35,6 +36,8 @@ const bulletinReducer = (
             return {...state, showSearchUsers: action.payload}
         case ActionTypes.SET_FOLLOW_ERROR_MSG:
             return {...state, followErrorMsg: action.payload }
+        case ActionTypes.SET_USER_LIST:
+            return {...state, userList: action.payload}
         case ActionTypes.DELETE_POST:{
 
             let allPosts = state.posts

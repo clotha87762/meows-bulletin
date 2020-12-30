@@ -23,12 +23,14 @@ class ProfileComponent extends Component {
             profileReady: false,
             editingAlias: false,
             editingIntro: false,
-            editingImage: false
+            editingImage: false,
+            onFollow: false
         }
 
         //this.renderProfilePost = this.renderProfilePost.bind(this)
         this.renderProfilePosts = this.renderProfilePosts.bind(this)
         this.renderLoading = this.renderLoading.bind(this)
+        //this.renderFollowButton = this.renderFollowButton.bind(this)
 
         this.profileCardRef = React.createRef()
         this.uploadProfileImageRef = React.createRef()
@@ -83,6 +85,7 @@ class ProfileComponent extends Component {
     }
 
 
+
     render() {
 
         console.log('profile render!')
@@ -90,7 +93,7 @@ class ProfileComponent extends Component {
         console.log(this.state)
 
         let posts = this.renderProfilePosts()
-
+        let FollowButton
         let editAlias = () => {
 
             let aliasTextarea = this.profileCardRef.current.querySelector('.aliasTextarea')
@@ -158,7 +161,43 @@ class ProfileComponent extends Component {
         }
 
 
+        let onClickFollow = () => {
+            this.setState({ onFollow: true })
+            setTimeout(() => { this.setState({ onFollow: false }) }, 2000)
+        }
+
+        let onClickUnfollow = () => {
+            this.setState({ onFollow: true })
+            setTimeout(() => { this.setState({ onFollow: false }) }, 2000)
+        }
+
+
+
+
         if (this.state.profileReady && this.props.profile !== null) {
+
+            if (this.props.myProfile.followees.indexOf(this.props.profile.user) !== -1) {
+                FollowButton = () => {
+                    return (
+                        <Button onClick={onClickUnfollow} className='followButton' color='primary'>
+                            {this.state.onFollow ?
+                                    <span style={{ marginTop: '10px' }} className="fa fa-spinner fa-pulse fa-lg fa-fw text-warning"></span>
+                                    :
+                                    'Unfollow'
+                            }</Button>)}}
+            else {
+                FollowButton = () => {
+                    return (
+                        <Button onClick={onClickFollow} className='followButton' color='primary'>
+                            {this.state.onFollow ?
+                                <span style={{ marginTop: '10px' }} className="fa fa-spinner fa-pulse fa-lg fa-fw text-warning"></span>
+                                :
+                                'Follow'}
+                        </Button>
+                    )
+                }
+            }
+
 
             return (
                 <div className='postContainer' style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -175,6 +214,7 @@ class ProfileComponent extends Component {
                                             :
                                             null
                                     }
+
                                 </div>
 
                             </div>
@@ -190,7 +230,7 @@ class ProfileComponent extends Component {
                                         (this.props.myId === this.props.profile.user && !this.state.editingAlias) ?
                                             <Button onClick={editAlias} className='editAlias ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
-                                            null
+                                            <FollowButton />
                                     }
                                 </div>
                                 <hr />

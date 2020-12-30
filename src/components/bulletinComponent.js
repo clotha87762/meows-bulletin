@@ -38,7 +38,8 @@ const mapDispatchToProps = (dispatch) => {
         deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
         editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) },
         fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
-        editProfile: (profile) => { webAPI.editProfile(dispatch, profile) }
+        editProfile: (profile) => { webAPI.editProfile(dispatch, profile) },
+        
     }
 }
 
@@ -476,7 +477,9 @@ class BulletinComponent extends Component {
                         myId={this.props.profile.user} posts={this.props.otherPosts}
                         profileId={userId} fetchProfile={this.props.fetchProfile}
                         profile={userId === this.props.profile.user ? this.props.profile : this.props.otherProfile}
-                        fetchUserPost={this.props.fetchUserPost} />
+                        myProfile={this.props.profile}
+                        fetchUserPost={this.props.fetchUserPost} 
+                        />
                 }
             </>
         )

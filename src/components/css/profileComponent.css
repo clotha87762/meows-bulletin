@@ -76,6 +76,13 @@
     top: 75%;
 }
 
+.profileCard .followButton{
+    background: rgba(61, 40, 179, 0.9);
+    position: absolute;
+    right: 5%;
+    top: 5%;
+}
+
 
 .postInterval{
     height: 50px;

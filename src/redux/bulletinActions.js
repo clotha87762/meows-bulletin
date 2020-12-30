@@ -1,8 +1,13 @@
-import {  SET_OTHER_POSTS, SET_OTHER_PROFILE, DELETE_POST, EDIT_POST, SET_FOLLOW_ERROR_MSG, SET_POSTS, SET_POSTS_READY, SHOW_CREATE_POST , SET_SEARCH_USER , SHOW_SEARCH_USER, SET_RANDOM_POSTS } from './ActionTypes'
+import { SET_USER_LIST, SET_OTHER_POSTS, SET_OTHER_PROFILE, DELETE_POST, EDIT_POST, SET_FOLLOW_ERROR_MSG, SET_POSTS, SET_POSTS_READY, SHOW_CREATE_POST , SET_SEARCH_USER , SHOW_SEARCH_USER, SET_RANDOM_POSTS } from './ActionTypes'
 import {createActions} from 'redux-actions'
 
 
-
+export const set_user_list = (userList) =>(
+    {
+        type: SET_USER_LIST,
+        payload: userList
+    }
+)
 
 export const set_other_posts = (posts) => (
     {

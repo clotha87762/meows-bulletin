@@ -10,14 +10,34 @@ import { connect } from 'react-redux'
 import webAPI from './webapi'
 import { BrowserRouter, withRouter } from 'react-router-dom';
 import { Col, Row } from 'reactstrap'
+import Cookies from 'universal-cookie';
+import { useEffect } from 'react';
 
+/*
+const cookies = new Cookies()
 
-function App( { isAuthed , profile , logout } ) {
+if(cookies.get('session-id') !== undefined){
+  this.props.loginWithSession()
+}
+*/
+
+function App( { isAuthed , profile , logout , loginWithSession} ) {
 
   //isAuthed = true
   let isMobile = window.screen.width < window.screen.height
 
   let colStyle = isMobile? {size:12, offset:0} : {size:10, offset:0}
+
+  let cookies = new Cookies()
+
+  useEffect( ()=>{
+   
+      console.log('session login triggered')
+      loginWithSession()
+    
+  },[])
+
+
   
   return (
 
@@ -72,7 +92,8 @@ export default connect(
   }),
   (dispatch) => (
     {
-      logout: () => { webAPI.logout(dispatch) }
+      logout: () => { webAPI.logout(dispatch) } ,
+      loginWithSession: ()=>{ webAPI.loginWithSession(dispatch)} ,
     }
   )
 )
