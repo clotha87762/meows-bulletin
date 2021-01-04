@@ -52,7 +52,16 @@ const mapDispatchToProps = (dispatch) => {
              {webAPI.setProfile(dispatch, profile, profileAccount ,callBack ,userList) },
         editProfile: (profile , account , modifySelf ) => { webAPI.editProfile(dispatch, profile , account , modifySelf , fetchUserPost) },
         followUser: (account) => { webAPI.followUser(dispatch, account ) },
-        unfollowUser: (account) => { webAPI.unfollowUser(dispatch, account )}
+        unfollowUser: (account) => { webAPI.unfollowUser(dispatch, account )},
+        createPost: (postContent, postImg , history , path ) =>{ 
+
+            let goBackToBulletin = () =>{
+                history.push(path)
+            }
+
+            webAPI.createPost(dispatch, postContent, postImg, goBackToBulletin)
+        
+        }
     }
 }
 
@@ -296,6 +305,11 @@ class BulletinComponent extends Component {
         }
 
         let submitPost = () => {
+            
+            let content = this.createPostTextareaRef.current.value
+            let image = 'default'
+
+            this.props.createPost( content , image ,  this.props.history , this.props.match.path )
 
         }
 

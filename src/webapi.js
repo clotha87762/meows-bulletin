@@ -618,13 +618,43 @@ export default {
         )
     },
 
-    createPost: (dispatch, postContent , postImg) =>{
+    createPost: (dispatch, postContent , postImg = 'default' , callBack = ()=>{} ) =>{
+
         let payload = {
             content: postContent,
-            attachImage: postImg
+            //attachImage: postImg
         }
 
+        axios(
+            {
+                method: 'post',
+                baseURL: 'http://localhost:3000',
+                url: '/posts' ,
+                data:{
+                    post:payload,
+                },
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
 
+                    let post = result.data
+                    
+                    console.log('create new post!')
+                    console.log(post)
+
+                    callBack()
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
 
     },
 
