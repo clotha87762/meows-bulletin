@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { withRouter, Switch, Route, NavLink, Redirect, useHistory } from 'react-router-dom'
+
+
 import { set_posts, set_posts_ready, show_create_post, set_search_user, show_search_user } from '../redux/bulletinActions'
 import webAPI from '../webapi'
 import './css/bulletinComponent.css'
@@ -22,24 +24,35 @@ const mapStateToProps = (state) => {
         showCreatePost: state.bulletin.showCreatePost, //好像沒用?
         showSearchUsers: state.bulletin.showSearchUsers,
         postsReady: state.bulletin.postsReady,
-        profile: state.app.profile.toJS(),
-        otherProfile: state.bulletin.otherProfile,
-        otherPosts: state.bulletin.otherPosts.toJS()
+        profile: Object.keys(state.app.profile.toJS()).length===0?  
+                    null : state.app.profile.toJS(),
+        otherProfile: Object.keys(state.bulletin.otherProfile.toJS()).length===0?  
+                        null : state.bulletin.otherProfile.toJS() ,
+        otherPosts: state.bulletin.otherPosts.toJS(),
+        userList : state.bulletin.userList.toJS()
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
+
+    const fetchUserPost = (userAccount) => { webAPI.fetchUserPost(dispatch, userAccount) }
+
     return {
         fetchPost: () => { webAPI.fetchPosts(dispatch) },
-        fetchUserPost: (userAccount) => { webAPI.fetchUserPost(dispatch, userAccount) },
+        fetchUserPost: fetchUserPost,
         fetchRandomPost: () => { webAPI.fetchRandomPosts(dispatch) },
-        fetchUsers: (userPrefix) => { webAPI.fetchUsers(dispatch, userPrefix) },
-        login: () => { webAPI.login(dispatch, '123', '123123') },
+        fetchUsers: (userPrefix ) => { webAPI.fetchUsers(dispatch, userPrefix  ) },
+        login: () => { webAPI.login(dispatch, '123' , '123123') }, 
+        // this is because we are logining with session cookie 
+
         deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
         editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) },
-        fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
-        editProfile: (profile) => { webAPI.editProfile(dispatch, profile) },
-        
+        //fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
+        setProfile: (profile, profileAccount, callBack , userList ) =>
+             {webAPI.setProfile(dispatch, profile, profileAccount ,callBack ,userList) },
+        editProfile: (profile , account , modifySelf ) => { webAPI.editProfile(dispatch, profile , account , modifySelf , fetchUserPost) },
+        followUser: (account) => { webAPI.followUser(dispatch, account ) },
+        unfollowUser: (account) => { webAPI.unfollowUser(dispatch, account )}
     }
 }
 
@@ -48,6 +61,7 @@ class BulletinComponent extends Component {
 
     constructor(props) {
         super(props)
+
 
         this.renderPost = this.renderPost.bind(this)
         this.renderPosts = this.renderPosts.bind(this)
@@ -64,7 +78,8 @@ class BulletinComponent extends Component {
         this.state = {
             ...this.state,
             imgToUploadName: '',
-            fetchingProfile: false
+            fetchingProfile: false,
+            fetchedPrefix: ''
         }
 
         ///////////////////////////////
@@ -88,7 +103,6 @@ class BulletinComponent extends Component {
 
         console.log('will mount')
         this.props.fetchPost()
-        this.props.fetchRandomPost()
 
 
     }
@@ -104,6 +118,7 @@ class BulletinComponent extends Component {
 
     renderPost(post) {
 
+        //console.log('render post')
         //console.log(post)
         let postCardRef = React.createRef()
 
@@ -153,7 +168,7 @@ class BulletinComponent extends Component {
             submitEdit.classList.remove('order-1')
             submitEdit.classList.add('invisible')
 
-            this.props.editPost(post._id, contentEdit.value, post.image)
+            this.props.editPost(post._id, contentEdit.value, post.attachImage)
 
         }
 
@@ -167,12 +182,12 @@ class BulletinComponent extends Component {
                         </div>
                         <div className='col-5 offset-1'>
                             <div className='postCardUser'>
-                                <b >{post.alias + '@' + post.user}</b>
+                                <b >{post.user.alias + '@' + post.user.account}</b>
                             </div>
                         </div>
                         <div className="col-4 ml-auto">
                             <div className='postCardDate'>
-                                {post.date.format("yyyy-MM-dd hh:mm:ss")}
+                                {new Date(post.modifyDate).format("yyyy-MM-dd hh:mm:ss")}
                             </div>
                         </div>
                     </div>
@@ -196,7 +211,7 @@ class BulletinComponent extends Component {
 
                     <div className='row justify-content-end'>
                         {
-                            this.props.profile.user === post.user ?
+                            this.props.profile.account === post.user.account ?
                                 <>
                                     <Button onClick={submitEdit} className='invisible submitEditBtn functionBtn' color='primary'> <i className="fa fa-upload" /> </Button>
                                     <Button onClick={editPost} className='editPostBtn functionBtn' color='primary'> <i className="fa fa-edit" /> </Button>
@@ -223,7 +238,7 @@ class BulletinComponent extends Component {
                 return (
                     <div >
                         {
-                            this.props.randomPosts.map((item) => {
+                            this.props.randomPosts.filter(item=>{return item!==null}).map((item) => {
                                 return this.renderPost(item)
                             })
                         }
@@ -235,7 +250,7 @@ class BulletinComponent extends Component {
                 return (
                     <div >
                         {
-                            this.props.posts.map((item) => {
+                            this.props.posts.filter(item=>{return item!==null}).map((item) => {
                                 return this.renderPost(item)
                             })
                         }
@@ -255,7 +270,7 @@ class BulletinComponent extends Component {
 
         return (
             <div style={{ maxWidth: '100%' }}>
-                {header}
+                
                 <div className='postContainer'>
                     {posts}
                 </div>
@@ -289,13 +304,13 @@ class BulletinComponent extends Component {
         if (this.props.profile === null) {
             return (
                 <div>
-                    {header}
+                    {}
                 </div>
             )
         }
         return (
             <>
-                {header}
+                {}
                 <div className='postContainer' style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div className='container'>
                         <div className='container postCard'>
@@ -331,7 +346,7 @@ class BulletinComponent extends Component {
                                         +Image
                                     </Button>
                                     <Button onClick={clearText} color='primary' style={{ marginRight: '5px' }}>Clear</Button>
-                                    <Button color='success'>Submit</Button>
+                                    <Button onClick={submitPost} color='success'>Submit</Button>
                                 </div>
                             </div>
                         </div >
@@ -347,12 +362,23 @@ class BulletinComponent extends Component {
 
         let fetchSearchResult = (prefix) => {
 
-            this.props.fetchUsers(prefix)
+            if(this.state.fetchedPrefix !== prefix){
+                this.props.fetchUsers(prefix )
+            }
+            
+            this.setState({fetchedPrefix: prefix})
 
         }
 
         let searchOnFocus = (prefix) => {
-            this.props.fetchUsers(prefix)
+            
+            if(this.state.fetchedPrefix !== prefix){
+                this.props.fetchUsers(prefix)
+            }
+            
+
+            
+            this.setState({fetchedPrefix: prefix})
 
             let query = this.isMobile? '.searchResultMobile' : '.searchResult'
             let searchResultDiv = searchUserRef.current.querySelector(query)
@@ -370,9 +396,12 @@ class BulletinComponent extends Component {
 
         let linkToProfile = (profile) => {
             console.log('link')
-            console.log(profile.user)
-
-            this.props.history.replace((`${this.props.match.path}/profile/` + profile.user))
+            console.log(profile.account)
+            console.log(this.props.myHistory)
+            //browserHistory.push('/profile/' + profile.account)
+            this.props.history.push((`${this.props.match.path}/profile/` + profile.account))
+            //this.setState(this.state)
+            
             //this.props.history.go()
 
         }
@@ -387,9 +416,14 @@ class BulletinComponent extends Component {
                                 this.props.searchUsers.map(
                                     (item) => {
                                         return (
-                                            <div onClick={() => { linkToProfile(item) }} key={item.user} className='searchEntry'>
-                                                <span><img src={item.image} className='searchUserImg' /></span>
-                                                { item.alias + '@' + item.user}
+                                            <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
+                                                <span><img src={
+                                                    item.profileImage==='default'?
+                                                    '/assets/yoo.png'
+                                                    :
+                                                    item.profileImage
+                                                } className='searchUserImg' /></span>
+                                                { item.alias + '@' + item.account }
                                             </div>
                                         )
                                     }
@@ -411,7 +445,11 @@ class BulletinComponent extends Component {
 
                     <span style={{ flexBasis: '1vw' }} />
 
-                    <img className='userImg' src={this.props.profile ? this.props.profile.profileImage : "/assets/yoo.png"} />
+                    <img className='userImg' src={ ( !this.props.profile || this.props.profile.profileImage ==='default' ) ? 
+                         "/assets/yoo.png" :
+                         this.props.profile.profileImage                         
+                        } />
+
                     <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
@@ -419,12 +457,12 @@ class BulletinComponent extends Component {
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                     <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/`}>
-                        <button className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
+                        <button onClick={()=>{this.props.fetchPost()}} className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
                     </NavLink>
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                     <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/explore`}>
-                        <button className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
+                        <button onClick={ ()=>{this.props.fetchRandomPost()} } className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
                     </NavLink>
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
@@ -435,9 +473,15 @@ class BulletinComponent extends Component {
                                 this.props.searchUsers.map(
                                     (item) => {
                                         return (
-                                            <div onClick={() => { linkToProfile(item) }} key={item.user} className='searchEntry'>
-                                                <span><img src={item.image} className='searchUserImg' /></span>
-                                                { item.alias + '@' + item.user}
+                                            <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
+                                                <span><img src={
+                                                    item.profileImage==='default'?
+                                                    '/assets/yoo.png'
+                                                    :
+                                                    item.profileImage
+                                                } 
+                                                className='searchUserImg' /></span>
+                                                { item.alias + '@' + item.account}
                                             </div>
                                         )
                                     }
@@ -461,24 +505,45 @@ class BulletinComponent extends Component {
         console.log('params')
         console.log(match.params)
 
-        let userId = match.params.profileId
+        let userAccount = match.params.profileId
 
-        if (userId === undefined && this.props.profile !== null) {
-            userId = this.props.profile.user
+        if (userAccount === undefined && this.props.profile !== null) {
+            userAccount = this.props.profile.account
         }
+
+        console.log(userAccount)
+
+        /*
+        let profile
+        if(userAccount === this.props.profile.account){
+            profile = this.props.profile
+        }
+        else{
+            if(this.props.otherProfile !== null && userAccount === this.props.otherProfile.account){
+                profile = this.props.otherProfile
+            }
+            else{
+
+            }
+        }
+        */
 
         return (
             <>
-                {header}
-                {  (userId === undefined || this.props.profile === null) ?
+                {}
+                {  (userAccount === undefined ||  this.props.profile === null )?
                     <div />
                     :
                     <ProfileComponent editProfile={this.props.editProfile} renderPost={this.renderPost}
-                        myId={this.props.profile.user} posts={this.props.otherPosts}
-                        profileId={userId} fetchProfile={this.props.fetchProfile}
-                        profile={userId === this.props.profile.user ? this.props.profile : this.props.otherProfile}
+                        myAccount={this.props.profile.account} posts={this.props.otherPosts}
+                        profileAccount={userAccount} 
+                        profile={userAccount === this.props.profile.account ? this.props.profile : this.props.otherProfile}
                         myProfile={this.props.profile}
                         fetchUserPost={this.props.fetchUserPost} 
+                        setProfile={this.props.setProfile}
+                        userList={this.props.userList}
+                        followUser = {this.props.followUser}
+                        unfollowUser = {this.props.unfollowUser}
                         />
                 }
             </>
@@ -491,8 +556,12 @@ class BulletinComponent extends Component {
         this.isMobile = window.screen.width < window.screen.height
 
         console.log('renderrr')
+        let header = this.renderHeader()
+
+        //console.log(this.props.match.url)
         return (
             <div>
+                {header}
                 <Route exact path={`${this.props.match.path}/`} component={this.renderPostsPage} />
                 <Route exact path={`${this.props.match.path}/explore`} component={this.renderPostsPage} />
                 <Route exact path={`${this.props.match.path}/create`} component={this.renderCreatePost} />

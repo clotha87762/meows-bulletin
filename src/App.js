@@ -13,6 +13,7 @@ import { Col, Row } from 'reactstrap'
 import Cookies from 'universal-cookie';
 import { useEffect } from 'react';
 
+
 /*
 const cookies = new Cookies()
 
@@ -21,64 +22,66 @@ if(cookies.get('session-id') !== undefined){
 }
 */
 
-function App( { isAuthed , profile , logout , loginWithSession} ) {
+function App({ isAuthed, profile, logout, loginWithSession, myHistory }) {
 
   //isAuthed = true
   let isMobile = window.screen.width < window.screen.height
 
-  let colStyle = isMobile? {size:12, offset:0} : {size:10, offset:0}
+  let colStyle = isMobile ? { size: 12, offset: 0 } : { size: 10, offset: 0 }
 
   let cookies = new Cookies()
 
-  useEffect( ()=>{
-   
-      console.log('session login triggered')
-      loginWithSession()
-    
-  },[])
+  useEffect(() => {
+
+    console.log('session login triggered')
+    loginWithSession()
+
+  }, [])
 
 
-  
+
   return (
 
-    <BrowserRouter >
+    //<BrowserRouter >
 
-      <div className="App" style={{ position: 'relative', backgroundImage: `url('/assets/bg.jpg')` }} >
-        <div style={{ minHeight: '100vh' }}>
-          
-          { 
-            !isMobile?
-            <SideComponent isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
+    <div className="App" style={{ position: 'relative', backgroundImage: `url('/assets/bg.jpg')` }} >
+      <div style={{ minHeight: '100vh' }}>
+
+        {
+          !isMobile ?
+            <SideComponent isAuthed={isAuthed} userAlias={profile ? profile.alias : null} logout={logout} />
             :
             null
-          }
-          <Col xs={colStyle} style={{padding:'0px 0px'}}>
-            {
-              isAuthed?
-                <Switch>
-                  <Route exact path='/' component={MainComponent} />
-                  <Route path='/bulletin' component={BulletinComponent} />
-                  <Route path='/explore' component={MainComponent} />
-                  <Route path='/profile' component={MainComponent} />
-                  <Redirect to='/'/>
-                </Switch>
-                :
-                <Switch>
-                  <Route exact path='/' component={MainComponent} />
-                  <Route path='/login' component={LoginComponent} />
-                  <Redirect to='/'/>
-                </Switch>
-            }
-          </Col>
+        }
+        <Col xs={colStyle} style={{ padding: '0px 0px' }}>
           {
-            isMobile?
-            <BottomComponent profile={profile} isAuthed={isAuthed}  userAlias={profile? profile.alias : null}  logout={logout} />
+            isAuthed ?
+              <Switch>
+                <Route exact path='/' component={MainComponent} />
+                <Route path='/bulletin' render={(props) => (
+                  <BulletinComponent {...props} myHistory={myHistory} />
+                )} />
+                <Route path='/explore' component={MainComponent} />
+                <Route path='/profile' component={MainComponent} />
+                <Redirect to='/' />
+              </Switch>
+              :
+              <Switch>
+                <Route exact path='/' component={MainComponent} />
+                <Route path='/login' component={LoginComponent} />
+                <Redirect to='/' />
+              </Switch>
+          }
+        </Col>
+        {
+          isMobile ?
+            <BottomComponent profile={profile} isAuthed={isAuthed} userAlias={profile ? profile.alias : null} logout={logout} />
             :
             null
-          }
-        </div>
+        }
       </div>
-    </BrowserRouter>
+    </div>
+    //</BrowserRouter>
 
   );
 
@@ -88,12 +91,12 @@ function App( { isAuthed , profile , logout , loginWithSession} ) {
 export default connect(
   (state) => ({
     isAuthed: state.app.isLogined,
-    profile: state.app.profile===null? null : state.app.profile.toJS()
+    profile: state.app.profile === null ? null : state.app.profile.toJS()
   }),
   (dispatch) => (
     {
-      logout: () => { webAPI.logout(dispatch) } ,
-      loginWithSession: ()=>{ webAPI.loginWithSession(dispatch)} ,
+      logout: () => { webAPI.logout(dispatch) },
+      loginWithSession: () => { webAPI.loginWithSession(dispatch) },
     }
   )
 )

@@ -9,7 +9,7 @@ const bulletinReducer = (
         showSearchUsers: false,
         postsReady : false,
         followErrorMsg: null,
-        otherProfile: null,
+        otherProfile: Immutable.List() ,
         otherPosts: Immutable.List(),
         userList: Immutable.List(),
     },
@@ -81,7 +81,7 @@ const bulletinReducer = (
                 let post = target.filter(
                     (item)=>{
                         console.log(item.get('_id'))
-                        if(item.get('_id') === action.payload.id){
+                        if(item.get('_id') === action.payload._id){
                             return true
                         }
                         return false
@@ -94,12 +94,12 @@ const bulletinReducer = (
     
                         let targetPost = target.get( target.indexOf(item) ) 
 
-                        console.log('edit post')
+                        console.log('edit post reducer')
                         console.log(targetPost)
                         
                         let toMerge = {
                             content: action.payload.content,
-                            image: action.payload.image
+                            attachImage: action.payload.attachImage
                         }
 
                         targetPost = targetPost.merge( Immutable.Map(toMerge) )

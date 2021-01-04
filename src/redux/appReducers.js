@@ -21,6 +21,8 @@ const appReducer = (
                 toMerge.alias = action.payload.alias
             if (action.payload.hasOwnProperty('intro'))
                 toMerge.intro = action.payload.intro
+            if (action.payload.hasOwnProperty('followees'))
+                toMerge.followees = action.payload.followees
 
             console.log('edit profile')
             console.log(toMerge)

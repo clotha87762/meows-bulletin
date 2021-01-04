@@ -27,9 +27,12 @@ class ProfileComponent extends Component {
             onFollow: false
         }
 
+
+
         //this.renderProfilePost = this.renderProfilePost.bind(this)
         this.renderProfilePosts = this.renderProfilePosts.bind(this)
         this.renderLoading = this.renderLoading.bind(this)
+        this.checkSwitchProfile = this.checkSwitchProfile.bind(this)
         //this.renderFollowButton = this.renderFollowButton.bind(this)
 
         this.profileCardRef = React.createRef()
@@ -39,21 +42,31 @@ class ProfileComponent extends Component {
     }
 
     componentDidUpdate() {
-
+        
     }
-
 
     componentWillMount() {
-
-        if (this.props.profile === null || (this.props.profileId !== this.props.profile.user)) {
-            this.setState({ profileReady: false })
-            this.props.fetchProfile(this.props.profileId, this)
-        }
-        else {
-            this.setState({ profileReady: true })
-        }
-        this.props.fetchUserPost(this.props.profileId)
+        
+        console.log('willMount')
+        this.checkSwitchProfile()
     }
+
+    checkSwitchProfile(){
+
+        if (this.props.profile === null || (this.props.profileAccount !== this.props.profile.account)) {
+            this.setState({ profileReady: false })
+            this.props.setProfile( this.props.profile, this.props.profileAccount , this , this.props.userList)
+            this.props.fetchUserPost(this.props.profileAccount)
+        }
+        else if( (this.props.profile && this.props.profileAccount === this.props.profile.account) ){
+            if(!this.state.profileReady){
+                this.setState({ profileReady: true })
+                this.props.fetchUserPost(this.props.profileAccount)
+            }
+        }
+
+    }
+
 
     renderLoading() {
         return (
@@ -66,7 +79,7 @@ class ProfileComponent extends Component {
 
 
     renderProfilePosts() {
-        if (this.props.posts.length !== 0) {
+        if (this.props.posts.length !== 0 && this.props.posts[0].user.account === this.props.profileAccount) {
             return (
                 <div style={{ marginTop: '10vh' }}>
                     {
@@ -91,6 +104,10 @@ class ProfileComponent extends Component {
         console.log('profile render!')
         console.log(this.props.profile)
         console.log(this.state)
+
+        if(this.state.profileReady){
+            this.checkSwitchProfile()
+        }
 
         let posts = this.renderProfilePosts()
         let FollowButton
@@ -120,7 +137,9 @@ class ProfileComponent extends Component {
 
         let uploadProfileImage = () => {
             console.log(this.uploadProfileImageRef.current.files[0])
-            this.props.editProfile({ profileImage: '/assets/' + this.uploadProfileImageRef.current.files[0].name })
+            this.props.editProfile({ profileImage: '/assets/' + this.uploadProfileImageRef.current.files[0].name }
+                                    ,this.props.myProfile.account ,
+                                    this.props.myAccount === this.props.profileAccount)
         }
 
         let onEditAliasBlur = () => {
@@ -137,7 +156,8 @@ class ProfileComponent extends Component {
                 //////////////////////************************* */
                 // remember to re-fetch posts, in order to refresh name & image on posts card
                 /////////////////////************************** */
-                this.props.editProfile({ alias: aliasTextarea.value })
+                this.props.editProfile({ alias: aliasTextarea.value } , this.props.myProfile.account ,
+                     this.props.myAccount === this.props.profileAccount)
             }
 
         }
@@ -156,19 +176,22 @@ class ProfileComponent extends Component {
                 //////////////////////************************* */
                 // remember to re-fetch posts, in order to refresh name & image on posts card
                 /////////////////////************************** */
-                this.props.editProfile({ intro: introTextarea.value })
+                this.props.editProfile({ intro: introTextarea.value } , this.props.myProfile.account)
             }
         }
 
 
         let onClickFollow = () => {
             this.setState({ onFollow: true })
-            setTimeout(() => { this.setState({ onFollow: false }) }, 2000)
+            this.props.followUser(this.props.profile._id)
+            setTimeout( ()=>{this.setState({ onFollow: false })} , 1000 )
+
         }
 
         let onClickUnfollow = () => {
             this.setState({ onFollow: true })
-            setTimeout(() => { this.setState({ onFollow: false }) }, 2000)
+            this.props.unfollowUser(this.props.profile._id)
+            setTimeout( ()=>{this.setState({ onFollow: false })} , 1000 )
         }
 
 
@@ -176,7 +199,7 @@ class ProfileComponent extends Component {
 
         if (this.state.profileReady && this.props.profile !== null) {
 
-            if (this.props.myProfile.followees.indexOf(this.props.profile.user) !== -1) {
+            if (this.props.myProfile.followees.indexOf(this.props.profile._id) !== -1) {
                 FollowButton = () => {
                     return (
                         <Button onClick={onClickUnfollow} className='followButton' color='primary'>
@@ -207,9 +230,13 @@ class ProfileComponent extends Component {
                             <div style={{ position: 'relative', marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
                                 <div className='leftColumn' >
                                     <input ref={this.uploadProfileImageRef} type="file" id="uploadProfileImg" accept="image/*" style={{ display: 'none' }} onChange={() => { uploadProfileImage() }} />
-                                    <img className='profileCardImg' src={this.props.profile.profileImage} />
+                                    <img className='profileCardImg' src={
+                                        this.props.profile.profileImage === 'default'?
+                                        '/assets/yoo.png':
+                                        this.props.profile.profileImage
+                                    } />
                                     {
-                                        this.props.myId === this.props.profile.user ?
+                                        this.props.myAccount === this.props.profile.account ?
                                             <Button onClick={editProfileImage} className='editImg ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
                                             null
@@ -227,7 +254,7 @@ class ProfileComponent extends Component {
                                         </>
                                     }
                                     {
-                                        (this.props.myId === this.props.profile.user && !this.state.editingAlias) ?
+                                        (this.props.myAccount === this.props.profile.account && !this.state.editingAlias) ?
                                             <Button onClick={editAlias} className='editAlias ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
                                             <FollowButton />
@@ -241,7 +268,7 @@ class ProfileComponent extends Component {
                                     </>
                                     }
                                     {
-                                        (this.props.myId === this.props.profile.user && !this.state.editingIntro) ?
+                                        (this.props.myAccount === this.props.profile.account && !this.state.editingIntro) ?
                                             <Button onClick={editIntro} className='editDescription ' color='primary'> <i className="fa fa-edit" /> </Button>
                                             :
                                             null

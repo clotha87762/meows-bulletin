@@ -3,12 +3,15 @@ import { browserHistory } from 'react-router'
 import Immutable from 'immutable'
 import { set_news_ready, set_news } from './redux/mainActions'
 import { on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg, set_sign_up_form } from './redux/loginAction'
-import {  set_user_list , set_other_posts, set_other_profile, delete_post, edit_post, set_random_posts, set_posts, set_search_user, set_posts_ready, show_create_post, show_search_user } from './redux/bulletinActions'
+import { set_user_list, set_other_posts, set_other_profile, delete_post, edit_post, set_random_posts, set_posts, set_search_user, set_posts_ready, show_create_post, show_search_user } from './redux/bulletinActions'
 import { edit_profile, set_login, set_profile } from './redux/appActions'
 import { createBrowserHistory } from 'history'
 import Cookies from 'universal-cookie';
 
 var cookies = new Cookies()
+
+
+var fetchUserTable = {}
 
 export default {
 
@@ -53,7 +56,7 @@ export default {
                         }, 1000)
                     }
                     else {
-                        throw result
+                        //throw result
                     }
 
                 }
@@ -349,9 +352,7 @@ export default {
 
     fetchRandomPosts: (dispatch) => {
 
-
-
-        let posts = Immutable.List([
+        let mockPosts = Immutable.List([
             {
                 user: "aaaa123",
                 alias: "dlan",
@@ -369,8 +370,43 @@ export default {
         )
 
         dispatch(set_posts_ready(false))
-        setTimeout(() => { dispatch(set_random_posts(posts)) }, 2000)
-        setTimeout(() => { dispatch(set_posts_ready(true)) }, 2100)
+
+        axios(
+            {
+                method: 'get',
+                baseURL: 'http://localhost:3000',
+                url: '/posts/random',
+                withCredentials: true,
+            }
+        )
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+
+                        let posts = result.data
+                        console.log('get random posts!')
+                        console.log(posts)
+
+                        setTimeout(() => {
+
+                            dispatch(set_random_posts(posts))
+                            dispatch(set_posts_ready(true))
+
+                        }, 1500)
+
+                    }
+                }
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response.data.showError)
+                }
+            )
+
+        //dispatch(set_posts_ready(false))
+        //setTimeout(() => { dispatch(set_random_posts(posts)) }, 2000)
+        //setTimeout(() => { dispatch(set_posts_ready(true)) }, 2100)
     },
 
     fetchNewPosts: (dispatch) => {
@@ -379,7 +415,7 @@ export default {
         //
     },
 
-    fetchUsers: (dispatch, userPrefix, userList = Immutable.List(), fetchNewList = true) => {
+    fetchUsers: (dispatch, userPrefix, strictPrefix = false) => {
 
         let mockUsers = Immutable.fromJS([
             {
@@ -435,30 +471,63 @@ export default {
 
         ]
         )
-        let mockUserJS = users.toJS()
+        let mockUserJS = mockUsers.toJS()
 
         let users
 
-        if (fetchNewList) {
+        for (let key in fetchUserTable) {
+            fetchUserTable[key] = false
+        }
+
+        fetchUserTable[userPrefix] = true
+
+
+        if (userPrefix) {
+
+            dispatch(show_search_user(false))
+
             axios(
                 {
                     method: 'get',
                     baseURL: 'http://localhost:3000',
-                    url: '/users',
+                    url: '/users/search/' + userPrefix,
                     withCredentials: true,
                 }
             )
                 .then(
                     (result) => {
+
+                        if (!fetchUserTable[userPrefix]) {
+                            delete fetchUserTable[userPrefix]
+                            return
+                        }
                         if (result.status === 200) {
 
                             users = result.data
-                            console.log('get user posts!')
+                            console.log('get users!')
                             console.log(users)
 
                             setTimeout(() => {
-                                dispatch(show_search_user(false))
-                                dispatch( set_user_list(Immutable.fromJS(users) ))
+
+                                //dispatch(show_search_user(false))
+                                dispatch(set_user_list(Immutable.fromJS(users)))
+                                //setTimeout(() => { dispatch(show_search_user(true)) }, 1100)
+                                //setTimeout(() => { dispatch(set_search_user(users)) }, 1000)
+
+                                if (strictPrefix) {
+                                    users = users.filter(
+                                        (item) => {
+                                            return item.alias.toLowerCase().startsWith(userPrefix.toLowerCase())
+                                        }
+                                    )
+                                }
+                                console.log('users')
+                                console.log(users)
+
+                                if (userPrefix.trim().replace(/[^A-Za-z']/g, "") === '') {
+                                    users = []
+                                }
+
                                 setTimeout(() => { dispatch(show_search_user(true)) }, 1100)
                                 setTimeout(() => { dispatch(set_search_user(users)) }, 1000)
 
@@ -466,7 +535,7 @@ export default {
 
                         }
                         else {
-                            throw result
+                            //throw result
                         }
                     }
                 )
@@ -478,50 +547,173 @@ export default {
                 )
         }
         else {
-            users = userList.toJS()
-            users = users.filter(
-                (item) => {
-                    return item.alias.toLowerCase().startsWith(userPrefix.toLowerCase())
-                }
-            )
-            console.log('users')
-            console.log(users)
-
-            if (userPrefix.trim().replace(/[^A-Za-z']/g, "") === '') {
-                users = []
-            }
-
-            dispatch(show_search_user(false))
-            setTimeout(() => { dispatch(show_search_user(true)) }, 1100)
-            setTimeout(() => { dispatch(set_search_user(users)) }, 1000)
+            return
         }
+
+
 
     },
 
     followUser: (dispatch, followee) => { // false if user not exist or already folloed
+        
+        axios(
+            {
+                method: 'post',
+                baseURL: 'http://localhost:3000',
+                url: '/users/follow/' + followee,
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
+                    let profile = result.data
+                    
+                    console.log('follow user')
+                    console.log(profile)
 
+                    setTimeout( ()=>{
+                        dispatch( edit_profile( (profile)) )
+                    } , 300)
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
     },
 
     unfollowUser: (dispatch, followee) => {
 
+        axios(
+            {
+                method: 'delete',
+                baseURL: 'http://localhost:3000',
+                url: '/users/follow/' + followee,
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
+                    let profile = result.data
+                    
+                    console.log('unfollow user')
+                    console.log(profile)
+
+                    setTimeout( ()=>{
+                        dispatch( edit_profile((profile) ) )
+                    } , 300)
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
+    },
+
+    createPost: (dispatch, postContent , postImg) =>{
+        let payload = {
+            content: postContent,
+            attachImage: postImg
+        }
+
+
+
     },
 
     editPost: (dispatch, postId, postContent, postImg) => {
+        
         let payload = {
             id: postId,
             content: postContent,
-            image: postImg
+            attachImage: postImg
         }
-        dispatch(edit_post(payload))
+
+        axios(
+            {
+                method: 'put',
+                baseURL: 'http://localhost:3000',
+                url: '/posts/post/' + postId,
+                data:{
+                    post: payload
+                },
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
+
+                    let post = result.data
+
+                    console.log('edit post')
+                    console.log(post)
+
+
+                    setTimeout( ()=>{
+
+                        dispatch(edit_post(post))
+                        
+                    },200)
+                
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
+
+       // dispatch(edit_post(payload))
     },
 
     deletePost: (dispatch, postId) => {
 
-        setTimeout(() => { dispatch(delete_post(postId)) }, 1200)
+        axios(
+            {
+                method: 'delete',
+                baseURL: 'http://localhost:3000',
+                url: '/posts/post/' + postId,
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
+
+                    console.log('delete successfully')
+
+                    setTimeout( ()=>{
+                        
+                        dispatch(delete_post(postId))
+                        
+                    },1000)
+                
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
+
+        //setTimeout(() => { dispatch(delete_post(postId)) }, 1200)
 
     },
 
-    editProfile: (dispatch, edit) => {
+    editProfile: (dispatch, edit , account , modifySelf = false , fetchUserPost = null) => {
+
         let toMerge = {}
         if (edit.hasOwnProperty('alias'))
             toMerge.alias = edit.alias
@@ -530,10 +722,54 @@ export default {
         if (edit.hasOwnProperty('intro'))
             toMerge.intro = edit.intro
 
-        dispatch(edit_profile(toMerge))
+        console.log('tomerge')
+        console.log(toMerge)
+
+        axios(
+            {
+                method: 'put',
+                baseURL: 'http://localhost:3000',
+                url: '/users/user/' + account,
+                data:{
+                    user: toMerge
+                },
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) =>{
+                if(result.status === 200){
+
+                    let profile = result.data
+
+                    console.log('edit profile')
+                    console.log(profile)
+
+
+                    setTimeout( ()=>{
+                        dispatch(edit_profile( (profile) ))
+                        if(modifySelf && fetchUserPost !==null){
+                            fetchUserPost(account)
+                        }
+                        
+                    },1000)
+                
+                }
+            }
+        )
+        .catch(
+            err=>{
+                let response = err.response
+                console.log(response)
+            }
+        )
+
+        //dispatch(edit_profile(toMerge))
+
     },
 
-    fetchProfile: (dispatch, profileId, callBack) => {
+    setProfile: (dispatch, profile, profileAccount, callBack, userList = Immutable.List()) => {
+
         let otherProfiles = [
             {
                 user: "aaaa123",
@@ -567,15 +803,63 @@ export default {
             },
         ]
 
+        /*
         let profile = otherProfiles.filter(
             (item) => {
                 return item.user === profileId
             }
         )
         console.assert(profile.length === 1, { profile: profile })
+        */
 
-        setTimeout(() => { dispatch(set_other_profile(profile[0])) }, 1000)
-        setTimeout(() => { callBack.setState({ profileReady: true }) }, 1000)
+        /*
+        if (profile !== null && (profile.account === profileAccount)) {
+            setTimeout(() => { dispatch(set_other_profile(profile)) }, 1000)
+            setTimeout(() => { callBack.setState({ profileReady: true }) }, 1000)
+        }
+        */
+
+
+        let targetUser = userList.filter(
+            (item) => {
+                return item.account === profileAccount
+            }
+        )
+
+        if (targetUser.length > 0) {
+            console.log('target user')
+            console.log(targetUser[0])
+            setTimeout(() => { dispatch(set_other_profile(Immutable.fromJS(targetUser[0]))) }, 1000)
+            setTimeout(() => { callBack.setState({ profileReady: true }) }, 1100)
+            return
+        }
+
+        axios(
+            {
+                method: 'get',
+                baseURL: 'http://localhost:3000',
+                url: '/users/user/' + profileAccount,
+                withCredentials: true
+            }
+        )
+            .then(
+                (result) => {
+                    let user = result.data
+                    console.log('fetch user profile!')
+                    console.log(user)
+                    setTimeout(() => { dispatch(set_other_profile(Immutable.fromJS(user))) }, 1000)
+                    setTimeout(() => { callBack.setState({ profileReady: true }) }, 1000)
+
+                }
+            )
+            .catch(err => {
+                let response = err.response
+                console.log(response)
+            })
+
+
+        return
+
     },
 
     login: (dispatch, account, password) => {
@@ -618,9 +902,11 @@ export default {
                         console.log(document.cookie)
 
                         let profile = result.data
+                        /*
                         profile.user = profile.account
                         profile.profileImage = '/assets/yoo.png'
                         delete profile.account
+                        */
 
                         setTimeout(
                             () => {
@@ -636,7 +922,7 @@ export default {
                         )
                     }
                     else {
-                        throw result
+                        //throw result
                     }
                 }
             )
@@ -684,7 +970,7 @@ export default {
 
                     }
                     else {
-                        throw result
+                        //throw result
                     }
                 }
             )

@@ -9,17 +9,27 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.css';
 import 'bootstrap-social/bootstrap-social.css';
 import './common/DateFormat'
+import { BrowserRouter, withRouter } from 'react-router-dom';
+import createHistory from 'history/createBrowserHistory';
+
+const history = createHistory();   
 
 const store = createStore()
 
 
 ReactDOM.render(
 
+  <BrowserRouter >
+
   <Provider store={store}>
     <React.StrictMode>
-      <App />
+      <App myHistory={history}/>
     </React.StrictMode>
-  </Provider>,
+  </Provider>
+
+  </BrowserRouter >
+
+  ,
 
   document.getElementById('root')
 );
