@@ -63,8 +63,9 @@ const mapDispatchToProps = (dispatch) => {
             webAPI.createPost(dispatch, postContent, postImg, goBackToBulletin)
 
         },
-        getPostImage: (imageId) => { webAPI.getPostImage(dispatch, imageId) },
-        getProfileImage: (imageId) => { webAPI.getProfileImage(dispatch, imageId) },
+        getPostImage: (imageId, postId) => { webAPI.getPostImage(dispatch, imageId, postId) },
+        getProfileImage: (userId) => { webAPI.getProfileImage(dispatch, userId) },
+        editProfileImage: (profileImg) =>{webAPI.editProfileImage(dispatch,profileImg)},
 
     }
 }
@@ -75,6 +76,7 @@ class BulletinComponent extends Component {
     constructor(props) {
         super(props)
 
+        this.renderProfileImage = this.renderProfileImage.bind(this)
 
         this.renderPost = this.renderPost.bind(this)
         this.renderPosts = this.renderPosts.bind(this)
@@ -120,6 +122,28 @@ class BulletinComponent extends Component {
 
     }
 
+    renderProfileImage(userId) {
+
+        let profileImage = '/assets/profileImage/default.png'
+        let filtered = this.props.profileImages.filter(
+            item => {
+                return item.name === userId
+            }
+        )
+
+        if (filtered.length == 0) {
+            this.props.getProfileImage(userId)
+        }
+
+        if (filtered.length > 0) {
+            filtered = filtered[0]
+            let temp = Buffer.from(filtered.img.data).toString('base64')
+            profileImage = 'data:image/png;base64,' + temp
+        }
+
+        return profileImage
+    }
+
     renderLoading() {
         return (
             <div className='postLoading'>
@@ -137,12 +161,12 @@ class BulletinComponent extends Component {
         let postImage = []
         let displayPostImage = null
 
+        let postProfileImage = this.renderProfileImage(post.user._id)
+
         if (post.image) {
             postImage = this.props.postImages.filter(
                 item => {
                     //console.log('filter post image')
-                    //console.log(item.name)
-                    //console.log(post._id)
                     return item.name === post._id
                 }
             )
@@ -150,15 +174,12 @@ class BulletinComponent extends Component {
 
         if (post.image && postImage.length == 0) {
             //console.log('get image!')
-            this.props.getPostImage(post.image)
+            this.props.getPostImage(post.image, post._id)
         }
-
-        if (post.image && postImage.length > 0) {
+        else if (post.image && postImage.length > 0) {
             //postImage = postImage.toJS()
             //srcString = 'data:image/jpeg;base64,' + postImage.img.data.toString('base64')
             postImage = postImage[0]
-            //console.log('post images~~~~')
-            //console.log(postImage)
             let temp = Buffer.from(postImage.img.data).toString('base64')
             displayPostImage = 'data:image/png;base64,' + temp
         }
@@ -219,7 +240,7 @@ class BulletinComponent extends Component {
                 <div className='container postCard'>
                     <div className='row' style={{ marginTop: '10px' }}>
                         <div className='col-1'>
-                            <img src='/assets/yoo.png' className='postCardImg' />
+                            <img src={postProfileImage} className='postCardImg' />
                         </div>
                         <div className='col-5 offset-1'>
                             <div className='postCardUser'>
@@ -250,7 +271,7 @@ class BulletinComponent extends Component {
 
                     </div>
 
-                    
+
 
                     <div className='postImageArea'>
                         {
@@ -429,6 +450,9 @@ class BulletinComponent extends Component {
 
         let searchUserRef = React.createRef()
 
+        let headerProfileImage = this.props.profile ? this.renderProfileImage(this.props.profile._id) :
+            '/assets/profileImage/default.png'
+
         let fetchSearchResult = (prefix) => {
 
             if (this.state.fetchedPrefix !== prefix) {
@@ -475,6 +499,7 @@ class BulletinComponent extends Component {
 
         }
 
+
         if (this.isMobile) {
             return (
                 <div className='bulletinHeaderMobile'>
@@ -484,14 +509,16 @@ class BulletinComponent extends Component {
                             {
                                 this.props.searchUsers.map(
                                     (item) => {
+                                        let searchEntryProfileImage = this.renderProfileImage(item._id)
                                         return (
                                             <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
-                                                <span><img src={
-                                                    item.profileImage === 'default' ?
-                                                        '/assets/yoo.png'
-                                                        :
-                                                        item.profileImage
-                                                } className='searchUserImg' /></span>
+                                                <span>
+                                                    <img
+                                                        src={
+                                                            searchEntryProfileImage
+                                                        }
+                                                        className='searchUserImg' />
+                                                </span>
                                                 { item.alias + '@' + item.account}
                                             </div>
                                         )
@@ -514,10 +541,7 @@ class BulletinComponent extends Component {
 
                     <span style={{ flexBasis: '1vw' }} />
 
-                    <img className='userImg' src={(!this.props.profile || this.props.profile.profileImage === 'default') ?
-                        "/assets/yoo.png" :
-                        this.props.profile.profileImage
-                    } />
+                    <img className='userImg' src={headerProfileImage} />
 
                     <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
@@ -541,13 +565,11 @@ class BulletinComponent extends Component {
                             {
                                 this.props.searchUsers.map(
                                     (item) => {
+                                        let searchEntryProfileImage = this.renderProfileImage(item._id)
                                         return (
                                             <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
                                                 <span><img src={
-                                                    item.profileImage === 'default' ?
-                                                        '/assets/yoo.png'
-                                                        :
-                                                        item.profileImage
+                                                   searchEntryProfileImage
                                                 }
                                                     className='searchUserImg' /></span>
                                                 { item.alias + '@' + item.account}
@@ -615,6 +637,10 @@ class BulletinComponent extends Component {
                         unfollowUser={this.props.unfollowUser}
                         postImages={this.props.postImages}
                         profileImages={this.props.profileImages}
+                        renderProfileImage={this.renderProfileImage}
+                        getPostImage={this.props.getPostImage}
+                        getProfileImage={this.props.getPostImage}
+                        editProfileImage={this.props.editProfileImage}
                     />
                 }
             </>

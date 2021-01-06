@@ -20,12 +20,19 @@ const appReducer = (
 
             let profileImage = profileImages.filter(
                 (item, index) => {
-                    targetIndex = index
-                    return item.get('name') === action.payload.name
+                    
+                    if (item.get('name') === action.payload.name) {
+                        targetIndex = index
+                        return true
+                    }
+                    else {
+                        return false
+                    }
                 }
             )
 
             if (targetIndex >= 0) {
+                console.log('modify old profile image')
                 profileImages = profileImages.set(targetIndex, Immutable.fromJS(action.payload))
             }
             else {

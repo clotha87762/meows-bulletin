@@ -13,6 +13,7 @@ var cookies = new Cookies()
 
 
 var fetchUserTable = {}
+var fetchingImageList = []
 
 export default {
 
@@ -619,9 +620,17 @@ export default {
             )
     },
 
-    getPostImage: (dispatch , imageId ) =>{
+    getPostImage: (dispatch, imageId, postId) => {
+
+        if (fetchingImageList.indexOf(postId) !== -1)
+            return
 
         console.log('get post imageeeee')
+
+        fetchingImageList.push(postId)
+
+        //dispatch(set_post_images(Immutable.fromJS(preItem)))
+
         axios(
             {
                 method: 'get',
@@ -637,8 +646,9 @@ export default {
                         let image = result.data
                         //console.log('post image')
                         //console.log(image)
-                        dispatch( set_post_images(image) )
-                        
+                        dispatch(set_post_images(image))
+                        fetchingImageList.splice(fetchingImageList.indexOf(postId), 1)
+
                     }
                 }
             )
@@ -651,13 +661,22 @@ export default {
             )
     },
 
-    getProfileImage: (dispatch , imageId)=>{
+    getProfileImage: (dispatch, userId) => {
+
+        if (fetchingImageList.indexOf(userId) !== -1)
+            return
+
+        console.log('get profile imageeeee')
+        console.log(userId)
+
+        fetchingImageList.push(userId)
+
 
         axios(
             {
                 method: 'get',
                 baseURL: 'http://localhost:3000',
-                url: '/images/' + imageId,
+                url: '/images/user/' + userId,
                 withCredentials: true,
             }
         )
@@ -666,8 +685,14 @@ export default {
                     if (result.status === 200) {
 
                         let image = result.data
-                        dispatch( set_profile_images(image) )
-                        
+
+                        console.log('get profile image webapi')
+                        console.log(image)
+                        dispatch(set_profile_images(image))
+
+                        fetchingImageList.splice(fetchingImageList.indexOf(userId), 1)
+
+
                     }
                 }
             )
@@ -678,6 +703,49 @@ export default {
                     console.log(response)
                 }
             )
+
+    },
+
+    editProfileImage: (dispatch, profileImg) => {
+
+        let formData = new FormData()
+        formData.append("image", profileImg);
+        console.log('form data')
+        console.log(formData)
+
+        return axios(  // post image
+            {
+                method: 'post',
+                baseURL: 'http://localhost:3000',
+                url: '/users/profileImg/' ,
+                headers: { 'Content-Type': 'multipart/form-data' },
+                data: formData,
+                withCredentials: true,
+            }
+        )
+        .then(
+            (result) => {
+                if (result.status === 200) {
+
+                    let image = result.data
+
+                    dispatch( set_profile_images(image) )
+
+                    console.log('edit profile image!')
+                    //console.log(post)
+
+                    //callBack()
+                }
+            }
+        )
+        .catch(
+            err => {
+                let response = err.response
+                console.log(err)
+                console.log(response)
+            }
+        )
+
 
     },
 
@@ -707,7 +775,7 @@ export default {
                         if (postImg !== null) {
 
                             let formData = new FormData()
-                            formData.append("image", postImg );
+                            formData.append("image", postImg);
                             console.log('form data')
                             console.log(formData)
 
@@ -716,13 +784,13 @@ export default {
                                     method: 'post',
                                     baseURL: 'http://localhost:3000',
                                     url: '/posts/postImg/' + result.data[0]._id,
-                                    headers: {'Content-Type': 'multipart/form-data' },
+                                    headers: { 'Content-Type': 'multipart/form-data' },
                                     data: formData,
                                     withCredentials: true,
                                 }
                             )
                         }
-                        else{
+                        else {
                             return Promise.resolve(result)
                         }
                     }
@@ -834,6 +902,8 @@ export default {
         //setTimeout(() => { dispatch(delete_post(postId)) }, 1200)
 
     },
+
+
 
     editProfile: (dispatch, edit, account, modifySelf = false, fetchUserPost = null) => {
 

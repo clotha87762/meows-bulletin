@@ -109,6 +109,8 @@ class ProfileComponent extends Component {
             this.checkSwitchProfile()
         }
 
+        let userProfileImage = this.props.renderProfileImage(this.props.profile._id)
+
         let posts = this.renderProfilePosts()
         let FollowButton
         let editAlias = () => {
@@ -136,11 +138,19 @@ class ProfileComponent extends Component {
         }
 
         let uploadProfileImage = () => {
+            console.log('upload profile image')
+            
+            if(this.uploadProfileImageRef.current.files.length === 0)
+                return
+            
             console.log(this.uploadProfileImageRef.current.files[0])
+            this.props.editProfileImage( this.uploadProfileImageRef.current.files[0] )
+            /*
             this.props.editProfile({ profileImage: '/assets/' + this.uploadProfileImageRef.current.files[0].name }
                                     ,this.props.myProfile.account ,
                                     this.props.myAccount === this.props.profileAccount)
-        }
+            */                  
+           }
 
         let onEditAliasBlur = () => {
 
@@ -231,9 +241,7 @@ class ProfileComponent extends Component {
                                 <div className='leftColumn' >
                                     <input ref={this.uploadProfileImageRef} type="file" id="uploadProfileImg" accept="image/*" style={{ display: 'none' }} onChange={() => { uploadProfileImage() }} />
                                     <img className='profileCardImg' src={
-                                        this.props.profile.profileImage === 'default'?
-                                        '/assets/yoo.png':
-                                        this.props.profile.profileImage
+                                        userProfileImage
                                     } />
                                     {
                                         this.props.myAccount === this.props.profile.account ?
