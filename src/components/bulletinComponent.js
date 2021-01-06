@@ -24,12 +24,14 @@ const mapStateToProps = (state) => {
         showCreatePost: state.bulletin.showCreatePost, //好像沒用?
         showSearchUsers: state.bulletin.showSearchUsers,
         postsReady: state.bulletin.postsReady,
-        profile: Object.keys(state.app.profile.toJS()).length===0?  
-                    null : state.app.profile.toJS(),
-        otherProfile: Object.keys(state.bulletin.otherProfile.toJS()).length===0?  
-                        null : state.bulletin.otherProfile.toJS() ,
+        profile: Object.keys(state.app.profile.toJS()).length === 0 ?
+            null : state.app.profile.toJS(),
+        otherProfile: Object.keys(state.bulletin.otherProfile.toJS()).length === 0 ?
+            null : state.bulletin.otherProfile.toJS(),
         otherPosts: state.bulletin.otherPosts.toJS(),
-        userList : state.bulletin.userList.toJS()
+        userList: state.bulletin.userList.toJS(),
+        postImages: state.app.postImages.toJS(),
+        profileImages: state.app.profileImages.toJS(),
     }
 }
 
@@ -41,27 +43,29 @@ const mapDispatchToProps = (dispatch) => {
         fetchPost: () => { webAPI.fetchPosts(dispatch) },
         fetchUserPost: fetchUserPost,
         fetchRandomPost: () => { webAPI.fetchRandomPosts(dispatch) },
-        fetchUsers: (userPrefix ) => { webAPI.fetchUsers(dispatch, userPrefix  ) },
-        login: () => { webAPI.login(dispatch, '123' , '123123') }, 
+        fetchUsers: (userPrefix) => { webAPI.fetchUsers(dispatch, userPrefix) },
+        login: () => { webAPI.login(dispatch, '123', '123123') },
         // this is because we are logining with session cookie 
 
         deletePost: (postId) => { webAPI.deletePost(dispatch, postId) },
         editPost: (postId, postContent, postImg) => { webAPI.editPost(dispatch, postId, postContent, postImg) },
         //fetchProfile: (profileId, callBack) => { webAPI.fetchProfile(dispatch, profileId, callBack) },
-        setProfile: (profile, profileAccount, callBack , userList ) =>
-             {webAPI.setProfile(dispatch, profile, profileAccount ,callBack ,userList) },
-        editProfile: (profile , account , modifySelf ) => { webAPI.editProfile(dispatch, profile , account , modifySelf , fetchUserPost) },
-        followUser: (account) => { webAPI.followUser(dispatch, account ) },
-        unfollowUser: (account) => { webAPI.unfollowUser(dispatch, account )},
-        createPost: (postContent, postImg , history , path ) =>{ 
+        setProfile: (profile, profileAccount, callBack, userList) => { webAPI.setProfile(dispatch, profile, profileAccount, callBack, userList) },
+        editProfile: (profile, account, modifySelf) => { webAPI.editProfile(dispatch, profile, account, modifySelf, fetchUserPost) },
+        followUser: (account) => { webAPI.followUser(dispatch, account) },
+        unfollowUser: (account) => { webAPI.unfollowUser(dispatch, account) },
+        createPost: (postContent, postImg, history, path) => {
 
-            let goBackToBulletin = () =>{
+            let goBackToBulletin = () => {
                 history.push(path)
             }
 
             webAPI.createPost(dispatch, postContent, postImg, goBackToBulletin)
-        
-        }
+
+        },
+        getPostImage: (imageId) => { webAPI.getPostImage(dispatch, imageId) },
+        getProfileImage: (imageId) => { webAPI.getProfileImage(dispatch, imageId) },
+
     }
 }
 
@@ -130,6 +134,35 @@ class BulletinComponent extends Component {
         //console.log('render post')
         //console.log(post)
         let postCardRef = React.createRef()
+        let postImage = []
+        let displayPostImage = null
+
+        if (post.image) {
+            postImage = this.props.postImages.filter(
+                item => {
+                    console.log('filter post image')
+                    console.log(item.name)
+                    console.log(post._id)
+                    return item.name === post._id
+                }
+            )
+        }
+
+
+        if (post.image && postImage.length == 0) {
+            console.log('get image!')
+            this.props.getPostImage(post.image)
+        }
+
+        if (post.image && postImage.length > 0) {
+            //postImage = postImage.toJS()
+            //srcString = 'data:image/jpeg;base64,' + postImage.img.data.toString('base64')
+            postImage = postImage[0]
+            console.log('post images~~~~')
+            console.log(postImage)
+            let temp = Buffer.from(postImage.img.data).toString('base64')
+            displayPostImage = 'data:image/png;base64,' + temp
+        }
 
 
         let deletePost = () => {
@@ -218,6 +251,18 @@ class BulletinComponent extends Component {
 
                     </div>
 
+                    
+
+                    <div className='postImageArea'>
+                        {
+                            displayPostImage ?
+                                <img style={{ height: '100%', width: 'auto' }}
+                                    src={displayPostImage} />
+                                :
+                                null
+                        }
+                    </div>
+
                     <div className='row justify-content-end'>
                         {
                             this.props.profile.account === post.user.account ?
@@ -247,7 +292,7 @@ class BulletinComponent extends Component {
                 return (
                     <div >
                         {
-                            this.props.randomPosts.filter(item=>{return item!==null}).map((item) => {
+                            this.props.randomPosts.filter(item => { return item !== null }).map((item) => {
                                 return this.renderPost(item)
                             })
                         }
@@ -259,7 +304,7 @@ class BulletinComponent extends Component {
                 return (
                     <div >
                         {
-                            this.props.posts.filter(item=>{return item!==null}).map((item) => {
+                            this.props.posts.filter(item => { return item !== null }).map((item) => {
                                 return this.renderPost(item)
                             })
                         }
@@ -279,7 +324,7 @@ class BulletinComponent extends Component {
 
         return (
             <div style={{ maxWidth: '100%' }}>
-                
+
                 <div className='postContainer'>
                     {posts}
                 </div>
@@ -305,11 +350,22 @@ class BulletinComponent extends Component {
         }
 
         let submitPost = () => {
-            
-            let content = this.createPostTextareaRef.current.value
-            let image = 'default'
 
-            this.props.createPost( content , image ,  this.props.history , this.props.match.path )
+            let content = this.createPostTextareaRef.current.value
+            let image = null
+
+            if (!content) {
+                console.log('content cannot be null')
+                return
+            }
+
+            console.log('submit post')
+            if (this.uploadImgRef.current.files.length > 0) {
+                console.log(this.uploadImgRef.current.files[0])
+                image = this.uploadImgRef.current.files[0]
+            }
+
+            this.props.createPost(content, image, this.props.history, this.props.match.path)
 
         }
 
@@ -376,32 +432,32 @@ class BulletinComponent extends Component {
 
         let fetchSearchResult = (prefix) => {
 
-            if(this.state.fetchedPrefix !== prefix){
-                this.props.fetchUsers(prefix )
+            if (this.state.fetchedPrefix !== prefix) {
+                this.props.fetchUsers(prefix)
             }
-            
-            this.setState({fetchedPrefix: prefix})
+
+            this.setState({ fetchedPrefix: prefix })
 
         }
 
         let searchOnFocus = (prefix) => {
-            
-            if(this.state.fetchedPrefix !== prefix){
+
+            if (this.state.fetchedPrefix !== prefix) {
                 this.props.fetchUsers(prefix)
             }
-            
 
-            
-            this.setState({fetchedPrefix: prefix})
 
-            let query = this.isMobile? '.searchResultMobile' : '.searchResult'
+
+            this.setState({ fetchedPrefix: prefix })
+
+            let query = this.isMobile ? '.searchResultMobile' : '.searchResult'
             let searchResultDiv = searchUserRef.current.querySelector(query)
             searchResultDiv.classList.remove('invisible')
 
         }
 
         let searchOnBlur = () => {
-            let query = this.isMobile? '.searchResultMobile' : '.searchResult'
+            let query = this.isMobile ? '.searchResultMobile' : '.searchResult'
             let searchResultDiv = searchUserRef.current.querySelector(query)
 
             setTimeout(() => { searchResultDiv.classList.add('invisible') }, 100)
@@ -415,7 +471,7 @@ class BulletinComponent extends Component {
             //browserHistory.push('/profile/' + profile.account)
             this.props.history.push((`${this.props.match.path}/profile/` + profile.account))
             //this.setState(this.state)
-            
+
             //this.props.history.go()
 
         }
@@ -432,12 +488,12 @@ class BulletinComponent extends Component {
                                         return (
                                             <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
                                                 <span><img src={
-                                                    item.profileImage==='default'?
-                                                    '/assets/yoo.png'
-                                                    :
-                                                    item.profileImage
+                                                    item.profileImage === 'default' ?
+                                                        '/assets/yoo.png'
+                                                        :
+                                                        item.profileImage
                                                 } className='searchUserImg' /></span>
-                                                { item.alias + '@' + item.account }
+                                                { item.alias + '@' + item.account}
                                             </div>
                                         )
                                     }
@@ -459,10 +515,10 @@ class BulletinComponent extends Component {
 
                     <span style={{ flexBasis: '1vw' }} />
 
-                    <img className='userImg' src={ ( !this.props.profile || this.props.profile.profileImage ==='default' ) ? 
-                         "/assets/yoo.png" :
-                         this.props.profile.profileImage                         
-                        } />
+                    <img className='userImg' src={(!this.props.profile || this.props.profile.profileImage === 'default') ?
+                        "/assets/yoo.png" :
+                        this.props.profile.profileImage
+                    } />
 
                     <span /> <b style={{ overflowX: 'hidden', minWidth: '5vw', maxWidth: '10vw', textAlign: 'center' }}>{this.props.profile ? this.props.profile.alias : "Guest"} </b><span />
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
@@ -471,12 +527,12 @@ class BulletinComponent extends Component {
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                     <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/`}>
-                        <button onClick={()=>{this.props.fetchPost()}} className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
+                        <button onClick={() => { this.props.fetchPost() }} className='randomPostButton btn'><span className="fa fa-stack-overflow fa-fw" /> <span className='textself'>&nbsp;My Bulletin&nbsp; </span> </button>
                     </NavLink>
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
                     <NavLink style={{ color: 'black' }} to={`${this.props.match.path}/explore`}>
-                        <button onClick={ ()=>{this.props.fetchRandomPost()} } className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
+                        <button onClick={() => { this.props.fetchRandomPost() }} className='randomPostButton btn'><span className="fa fa-globe fa-fw" /><span className='textself'> &nbsp;Explore&nbsp; </span></button>
                     </NavLink>
                     <span > <b style={{ fontSize: '5vh' }}>|</b> </span>
 
@@ -489,12 +545,12 @@ class BulletinComponent extends Component {
                                         return (
                                             <div onClick={() => { linkToProfile(item) }} key={item.account} className='searchEntry'>
                                                 <span><img src={
-                                                    item.profileImage==='default'?
-                                                    '/assets/yoo.png'
-                                                    :
-                                                    item.profileImage
-                                                } 
-                                                className='searchUserImg' /></span>
+                                                    item.profileImage === 'default' ?
+                                                        '/assets/yoo.png'
+                                                        :
+                                                        item.profileImage
+                                                }
+                                                    className='searchUserImg' /></span>
                                                 { item.alias + '@' + item.account}
                                             </div>
                                         )
@@ -545,20 +601,22 @@ class BulletinComponent extends Component {
         return (
             <>
                 {}
-                {  (userAccount === undefined ||  this.props.profile === null )?
+                {  (userAccount === undefined || this.props.profile === null) ?
                     <div />
                     :
                     <ProfileComponent editProfile={this.props.editProfile} renderPost={this.renderPost}
                         myAccount={this.props.profile.account} posts={this.props.otherPosts}
-                        profileAccount={userAccount} 
+                        profileAccount={userAccount}
                         profile={userAccount === this.props.profile.account ? this.props.profile : this.props.otherProfile}
                         myProfile={this.props.profile}
-                        fetchUserPost={this.props.fetchUserPost} 
+                        fetchUserPost={this.props.fetchUserPost}
                         setProfile={this.props.setProfile}
                         userList={this.props.userList}
-                        followUser = {this.props.followUser}
-                        unfollowUser = {this.props.unfollowUser}
-                        />
+                        followUser={this.props.followUser}
+                        unfollowUser={this.props.unfollowUser}
+                        postImages={this.props.postImages}
+                        profileImages={this.props.profileImages}
+                    />
                 }
             </>
         )

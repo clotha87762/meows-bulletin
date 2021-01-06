@@ -267,6 +267,15 @@
     margin-top: 3px;
 }
 
+.postCard .postImageArea{
+    display:flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    max-height: 50%;
+    background: rgba(0, 0, 0, 1.0);
+}
+
 .postCard .functionBtn{
     border-radius: 5px;
     margin: 0 10px;

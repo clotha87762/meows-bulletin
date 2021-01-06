@@ -4,9 +4,10 @@ import Immutable from 'immutable'
 import { set_news_ready, set_news } from './redux/mainActions'
 import { on_login, on_sign_up, set_login_error_msg, set_sign_up_error_msg, set_sign_up_form } from './redux/loginAction'
 import { set_user_list, set_other_posts, set_other_profile, delete_post, edit_post, set_random_posts, set_posts, set_search_user, set_posts_ready, show_create_post, show_search_user } from './redux/bulletinActions'
-import { edit_profile, set_login, set_profile } from './redux/appActions'
+import { set_post_images, set_profile_images, edit_profile, set_login, set_profile } from './redux/appActions'
 import { createBrowserHistory } from 'history'
 import Cookies from 'universal-cookie';
+import FormData from 'form-data'
 
 var cookies = new Cookies()
 
@@ -555,7 +556,7 @@ export default {
     },
 
     followUser: (dispatch, followee) => { // false if user not exist or already folloed
-        
+
         axios(
             {
                 method: 'post',
@@ -564,26 +565,26 @@ export default {
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
-                    let profile = result.data
-                    
-                    console.log('follow user')
-                    console.log(profile)
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+                        let profile = result.data
 
-                    setTimeout( ()=>{
-                        dispatch( edit_profile( (profile)) )
-                    } , 300)
+                        console.log('follow user')
+                        console.log(profile)
+
+                        setTimeout(() => {
+                            dispatch(edit_profile((profile)))
+                        }, 300)
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response)
+                }
+            )
     },
 
     unfollowUser: (dispatch, followee) => {
@@ -596,29 +597,91 @@ export default {
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
-                    let profile = result.data
-                    
-                    console.log('unfollow user')
-                    console.log(profile)
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+                        let profile = result.data
 
-                    setTimeout( ()=>{
-                        dispatch( edit_profile((profile) ) )
-                    } , 300)
+                        console.log('unfollow user')
+                        console.log(profile)
+
+                        setTimeout(() => {
+                            dispatch(edit_profile((profile)))
+                        }, 300)
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response)
+                }
+            )
     },
 
-    createPost: (dispatch, postContent , postImg = 'default' , callBack = ()=>{} ) =>{
+    getPostImage: (dispatch , imageId ) =>{
+
+        console.log('get post imageeeee')
+        axios(
+            {
+                method: 'get',
+                baseURL: 'http://localhost:3000',
+                url: '/images/' + imageId,
+                withCredentials: true,
+            }
+        )
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+
+                        let image = result.data
+                        console.log('post image')
+                        console.log(image)
+                        dispatch( set_post_images(image) )
+                        
+                    }
+                }
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(err)
+                    console.log(response)
+                }
+            )
+    },
+
+    getProfileImage: (dispatch , imageId)=>{
+
+        axios(
+            {
+                method: 'get',
+                baseURL: 'http://localhost:3000',
+                url: '/images/' + imageId,
+                withCredentials: true,
+            }
+        )
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+
+                        let image = result.data
+                        dispatch( set_profile_images(image) )
+                        
+                    }
+                }
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(err)
+                    console.log(response)
+                }
+            )
+
+    },
+
+    createPost: (dispatch, postContent, postImg = null, callBack = () => { }) => {
 
         let payload = {
             content: postContent,
@@ -629,37 +692,67 @@ export default {
             {
                 method: 'post',
                 baseURL: 'http://localhost:3000',
-                url: '/posts' ,
-                data:{
-                    post:payload,
+                url: '/posts',
+                data: {
+                    post: payload,
                 },
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+                        console.log('result data')
+                        console.log(result.data)
+                        if (postImg !== null) {
 
-                    let post = result.data
-                    
-                    console.log('create new post!')
-                    console.log(post)
+                            let formData = new FormData()
+                            formData.append("image", postImg );
+                            console.log('form data')
+                            console.log(formData)
 
-                    callBack()
+                            return axios(  // post image
+                                {
+                                    method: 'post',
+                                    baseURL: 'http://localhost:3000',
+                                    url: '/posts/postImg/' + result.data[0]._id,
+                                    headers: {'Content-Type': 'multipart/form-data' },
+                                    data: formData,
+                                    withCredentials: true,
+                                }
+                            )
+                        }
+                        else{
+                            return Promise.resolve(result)
+                        }
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .then(
+                (result) => {
+                    if (result.status === 200) {
+
+                        let post = result.data
+
+                        console.log('create new post!')
+                        //console.log(post)
+
+                        callBack()
+                    }
+                }
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(err)
+                    console.log(response)
+                }
+            )
 
     },
 
     editPost: (dispatch, postId, postContent, postImg) => {
-        
+
         let payload = {
             id: postId,
             content: postContent,
@@ -671,39 +764,39 @@ export default {
                 method: 'put',
                 baseURL: 'http://localhost:3000',
                 url: '/posts/post/' + postId,
-                data:{
+                data: {
                     post: payload
                 },
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
+            .then(
+                (result) => {
+                    if (result.status === 200) {
 
-                    let post = result.data
+                        let post = result.data
 
-                    console.log('edit post')
-                    console.log(post)
+                        console.log('edit post')
+                        console.log(post)
 
 
-                    setTimeout( ()=>{
+                        setTimeout(() => {
 
-                        dispatch(edit_post(post))
-                        
-                    },200)
-                
+                            dispatch(edit_post(post))
+
+                        }, 200)
+
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response)
+                }
+            )
 
-       // dispatch(edit_post(payload))
+        // dispatch(edit_post(payload))
     },
 
     deletePost: (dispatch, postId) => {
@@ -716,33 +809,33 @@ export default {
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
+            .then(
+                (result) => {
+                    if (result.status === 200) {
 
-                    console.log('delete successfully')
+                        console.log('delete successfully')
 
-                    setTimeout( ()=>{
-                        
-                        dispatch(delete_post(postId))
-                        
-                    },1000)
-                
+                        setTimeout(() => {
+
+                            dispatch(delete_post(postId))
+
+                        }, 1000)
+
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response)
+                }
+            )
 
         //setTimeout(() => { dispatch(delete_post(postId)) }, 1200)
 
     },
 
-    editProfile: (dispatch, edit , account , modifySelf = false , fetchUserPost = null) => {
+    editProfile: (dispatch, edit, account, modifySelf = false, fetchUserPost = null) => {
 
         let toMerge = {}
         if (edit.hasOwnProperty('alias'))
@@ -760,39 +853,39 @@ export default {
                 method: 'put',
                 baseURL: 'http://localhost:3000',
                 url: '/users/user/' + account,
-                data:{
+                data: {
                     user: toMerge
                 },
                 withCredentials: true,
             }
         )
-        .then(
-            (result) =>{
-                if(result.status === 200){
+            .then(
+                (result) => {
+                    if (result.status === 200) {
 
-                    let profile = result.data
+                        let profile = result.data
 
-                    console.log('edit profile')
-                    console.log(profile)
+                        console.log('edit profile')
+                        console.log(profile)
 
 
-                    setTimeout( ()=>{
-                        dispatch(edit_profile( (profile) ))
-                        if(modifySelf && fetchUserPost !==null){
-                            fetchUserPost(account)
-                        }
-                        
-                    },1000)
-                
+                        setTimeout(() => {
+                            dispatch(edit_profile((profile)))
+                            if (modifySelf && fetchUserPost !== null) {
+                                fetchUserPost(account)
+                            }
+
+                        }, 1000)
+
+                    }
                 }
-            }
-        )
-        .catch(
-            err=>{
-                let response = err.response
-                console.log(response)
-            }
-        )
+            )
+            .catch(
+                err => {
+                    let response = err.response
+                    console.log(response)
+                }
+            )
 
         //dispatch(edit_profile(toMerge))
 

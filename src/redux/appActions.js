@@ -1,5 +1,19 @@
-import { EDIT_PROFILE, SET_LOGIN , SET_PROFILE} from './ActionTypes'
+import { SET_POST_IMAGES, SET_PROFILE_IMAGES, EDIT_PROFILE, SET_LOGIN , SET_PROFILE} from './ActionTypes'
 
+
+export const set_post_images = (image) => (
+    {
+        type: SET_POST_IMAGES,
+        payload: image
+    }
+)
+
+export const set_profile_images = (image) => (
+    {
+        type: SET_PROFILE_IMAGES,
+        payload: image
+    }
+)
 
 export const edit_profile = (profile) => (
     {

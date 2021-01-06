@@ -28,3 +28,6 @@ export const SET_USER_LIST = 'SET_USER_LIST'
 export const EDIT_POST = 'EDIT_POST'
 export const DELETE_POST = 'DELETE_POST'
 export const EDIT_PROFILE = 'EDIT_PROFILE'
+
+export const SET_PROFILE_IMAGES = 'SET_PROFILE_IMAGES'
+export const SET_POST_IMAGES = 'SET_POST_IMAGES'
