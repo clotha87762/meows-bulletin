@@ -45,15 +45,20 @@ const appReducer = (
 
             let postImage = postImages.filter(
                 (item, index) => {
-                    targetIndex = index
-                    return item.get('name') === action.payload.name
+                    if (item.get('name') === action.payload.name) {
+                        targetIndex = index
+                        return true
+                    }
+                    else {
+                        return false
+                    }
                 }
             )
 
             if (targetIndex >= 0) {
                 postImages = postImages.set(targetIndex, Immutable.fromJS(action.payload))
             }
-            else{
+            else {
                 postImages = postImages.push(Immutable.fromJS(action.payload))
             }
 

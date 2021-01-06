@@ -635,8 +635,8 @@ export default {
                     if (result.status === 200) {
 
                         let image = result.data
-                        console.log('post image')
-                        console.log(image)
+                        //console.log('post image')
+                        //console.log(image)
                         dispatch( set_post_images(image) )
                         
                     }

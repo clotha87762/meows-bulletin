@@ -140,17 +140,16 @@ class BulletinComponent extends Component {
         if (post.image) {
             postImage = this.props.postImages.filter(
                 item => {
-                    console.log('filter post image')
-                    console.log(item.name)
-                    console.log(post._id)
+                    //console.log('filter post image')
+                    //console.log(item.name)
+                    //console.log(post._id)
                     return item.name === post._id
                 }
             )
         }
 
-
         if (post.image && postImage.length == 0) {
-            console.log('get image!')
+            //console.log('get image!')
             this.props.getPostImage(post.image)
         }
 
@@ -158,8 +157,8 @@ class BulletinComponent extends Component {
             //postImage = postImage.toJS()
             //srcString = 'data:image/jpeg;base64,' + postImage.img.data.toString('base64')
             postImage = postImage[0]
-            console.log('post images~~~~')
-            console.log(postImage)
+            //console.log('post images~~~~')
+            //console.log(postImage)
             let temp = Buffer.from(postImage.img.data).toString('base64')
             displayPostImage = 'data:image/png;base64,' + temp
         }
